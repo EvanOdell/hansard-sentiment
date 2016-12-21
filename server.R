@@ -5,7 +5,7 @@ library(scales)
 
 shinyServer(function(input, output, session) {
   
-  all_zoo_gg <- readRDS('all_zoo_gg.rds')
+  disability_hansard <- readRDS('disability_hansard.rds')
   
   base_breaks <- function(n = 10){
     function(x) {
@@ -21,10 +21,9 @@ shinyServer(function(input, output, session) {
   
   getDataSet <- reactive({
   
-  all_data <- all_zoo_gg[all_zoo_gg$Term == input$category_input
-                        & all_zoo_gg$Year >= input$year[1]
-                        & all_zoo_gg$Year <= input$year[2],]
-  
+  all_data <- disability_hansard[disability_hansard$Term == input$category_input
+                                      & disability_hansard$Year >= input$year[1]
+                                      & disability_hansard$Year <= input$year[2],]
   })
   
   line_colours <- c('Disabled Person'	=	'#006109',
