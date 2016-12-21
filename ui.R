@@ -2,7 +2,7 @@
 library(shiny)
 library(shinydashboard)
 
-header<-dashboardHeader(title='Disability Debate in Parliament')
+header<-dashboardHeader(title='Disability Debate in Parliament')##Fix header length
 
 body<-dashboardBody(
 
