@@ -51,15 +51,11 @@ body <- dashboardBody(
     )
     )
     )
-  
 
-
-# Put them together into a dashboardPage
 dashboardPage(
   dashboardHeader(title = "Disability in the Hansard"),
   sidebar,
   body,
   skin = "purple"
 )
-
 
