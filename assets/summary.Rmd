@@ -93,10 +93,10 @@ Nielsen, Finn Årup. 2011. *AFINN*. Lyngby, Denmark: Informatics and Mathematica
 
 ### Notes
 
-Source code is available on [Github](https://github.com/EvanOdell/hansardBlog). For assistance, questions or comments please contact Evan Odell via [email](mailto:evan.odell@disabilityrightsuk.org) or  [twitter](https://twitter.com/evanodell), or raise an issue on Github.
+Source code is available on [Github](https://github.com/EvanOdell/hansardBlog). For assistance, questions or comments please contact Evan Odell via [email](mailto:evan.odell@disabilityrightsuk.org) or  [Twitter](https://twitter.com/evanodell), or raise an issue on Github.
 
-This app is licensed under an MIT License. 
+This app is licensed under an [MIT License](https://github.com/EvanOdell/hansardBlog/blob/master/LICENSE). 
 
 The data used in this app was retrieved from the [ParlParse](https://www.theyworkforyou.com/pwdata/scrapedxml/) service operated by [MySociety](https://www.mysociety.org/).
 
-This app was constructed using [Shiny](http://shiny.rstudio.com/), with plots produced with `ggplot2` and `scales`.
+This app was constructed using [`shiny`](http://shiny.rstudio.com/) and `shinydashboard`, with plots produced with `ggplot2` and `scales`.

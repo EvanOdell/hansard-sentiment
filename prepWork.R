@@ -3,9 +3,9 @@
 library(reshape2)
 
 
-disability_with_sample <- melt(disability_with_sample, id.vars=c('Date','Year'))
+disability_with_sample <- melt(disability_with_sample, id.vars = c("Date", "Year"))
 
-disability_with_sample <-data.frame(disability_with_sample,stringsAsFactors = FALSE)
+disability_with_sample <- data.frame(disability_with_sample, stringsAsFactors = FALSE)
 
 
 summary(disability_with_sample)
@@ -30,4 +30,4 @@ disability_with_sample$variable[disability_with_sample$variable == "dis_hans_agg
 
 disability_with_sample$variable <- as.factor(disability_with_sample$variable)
 
-saveRDS(disability_with_sample,'./data/disability_with_sample.rds')
+saveRDS(disability_with_sample, "./data/disability_with_sample.rds")

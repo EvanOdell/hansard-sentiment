@@ -2,9 +2,7 @@
 library(shiny)
 library(shinydashboard)
 
-header<-dashboardHeader(title='Disability Debate in Parliament')##Fix header length
-
-
+header<-dashboardHeader(title="Disability Debate in Parliament")##Fix header length
 
 sidebar <- dashboardSidebar(
   sidebarMenu(
@@ -31,32 +29,32 @@ body <- dashboardBody(
               column(width=9,
                      box(width=NULL,
                          h3("Disability Discussion Frequency Chart"),
-                         plotOutput('hansardplot')
+                         plotOutput("hansardplot")
                      )
               ),
               column(width=3,
                      box(width=NULL,
                          
-                         checkboxGroupInput('category_input',
-                                            'Words and Phrases',
-                                            c('Disabled Person', 
-                                              'Disabled Men',
-                                              'Disabled Women',          
-                                              'Disabled Children',
-                                              'Disability Other',
-                                              'People With Disability',
-                                              'Children With Disability',
-                                              'Any With Disability',
-                                              'Independent Living',
-                                              'Wheelchair',
-                                              'Paralympic',
-                                              'Spastic',
-                                              'Sub-Normal',
-                                              'Amputee',
-                                              'Retard'),
-                                            selected ='Disabled Person'),
-                         
-                         sliderInput('year', 'Year', 1936, 2016, value = c(1936, 2016), sep='')
+                         checkboxGroupInput("category_input",
+                                            "Words and Phrases",
+                                            c("Disabled Person", 
+                                              "Disabled Men",
+                                              "Disabled Women",          
+                                              "Disabled Children",
+                                              "Disability Other",
+                                              "People With Disability",
+                                              "Children With Disability",
+                                              "Any With Disability",
+                                              "Independent Living",
+                                              "Wheelchair",
+                                              "Paralympic",
+                                              "Spastic",
+                                              "Sub-Normal",
+                                              "Amputee",
+                                              "Retard"),
+                                            selected ="Disabled Person")),
+                    box(width = NULL,
+                         sliderInput("year", "Year", 1936, 2016, value = c(1936, 2016), sep="")
                      )
               )
             )
@@ -70,26 +68,23 @@ body <- dashboardBody(
                          conditionalPanel(
                            condition = "input.toggle % 3 == 0",
                            h3("Sentiment Line Chart"),
-                           plotOutput('sentiplot')
+                           plotOutput("sentiplot")
                            ),
                          conditionalPanel(
                            condition = "input.toggle % 3 == 2",
                            h3("Sentiment Box Chart"),
-                           plotOutput('sentibox')
+                           plotOutput("sentibox")
                            ),
                          conditionalPanel(
                            condition = "input.toggle % 3 == 1",
                            h3("Sentiment Bar Chart"),
-                           plotOutput('sentibar')
+                           plotOutput("sentibar")
                          )
                          
                      )
               ),
               
               column(width=3,
-                     box(width = NULL,
-                         sliderInput('senti_year', 'Year', 1936, 2016, value = c(1936, 2016), sep='')
-                     ),
                      
                      radioButtons(
                        inputId="options",
@@ -103,18 +98,19 @@ body <- dashboardBody(
                      conditionalPanel(
                        condition = "input.options != 'All'",
                        checkboxGroupInput(
-                         'debate_type', 
-                         'Debate Type to Show',
+                         "debate_type", 
+                         "Debate Type to Show",
                          choices=c("All Debate", "Disability"),
                          selected = "Disability"
-                       )
+                       )),
+                     box(width = NULL,
+                         sliderInput("senti_year", "Year", 1936, 2016, value = c(1936, 2016), sep="")
                      )
-                     
+                     )
               )
             )
     )
-    )
-    )
+  )
 
 dashboardPage(
   dashboardHeader(title = "Disability in the Hansard"),
