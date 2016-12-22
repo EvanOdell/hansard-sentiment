@@ -5,7 +5,11 @@ library(scales)
 
 shinyServer(function(input, output, session) {
   
-  disability_hansard <- readRDS('disability_hansard.rds')
+  disability_phrase_groups <- readRDS('./data/disability_phrase_groups.rds')
+  
+  disability_with_sample <- readRDS("./data/disability_with_sample.rds")
+  
+  average_sentiment <- readRDS("./data/average_sentiment.rds")
   
   base_breaks <- function(n = 10){
     function(x) {
@@ -14,16 +18,27 @@ shinyServer(function(input, output, session) {
   }
   
   fmt_dcimals <- function(decimals=0){
-    # return a function responpsible for formatting the 
-    # axis labels with a given number of decimals 
     function(x) as.character(round(x,decimals))
   }
   
   getDataSet <- reactive({
   
-  all_data <- disability_hansard[disability_hansard$Term == input$category_input
-                                      & disability_hansard$Year >= input$year[1]
-                                      & disability_hansard$Year <= input$year[2],]
+  all_data <- disability_phrase_groups[disability_phrase_groups$Term == input$category_input
+                                      & disability_phrase_groups$Year >= input$year[1]
+                                      & disability_phrase_groups$Year <= input$year[2],]
+  })
+  
+  
+  sentiDataSet <- reactive({
+    
+    senti_data <- disability_with_sample[disability_with_sample$Year >= input$senti_year[1]
+                              & disability_with_sample$Year <= input$senti_year[2],]
+  })
+  
+  sentiDataBar <- reactive({
+    
+    senti_data <- average_sentiment[average_sentiment$Year >= input$senti_year[1]
+                                  & average_sentiment$Year <= input$senti_year[2],]
   })
   
   line_colours <- c('Disabled Person'	=	'#006109',
@@ -58,6 +73,9 @@ shinyServer(function(input, output, session) {
                     'Amputee'	=	'dotdash',
                     'Retard'	=	'dotdash')
   
+  senti_line <- c('All Debate' = 'solid',
+                  'Disability' = 'solid')
+  
   
   output$hansardplot<-renderPlot({
     
@@ -78,5 +96,67 @@ shinyServer(function(input, output, session) {
             legend.position='bottom', legend.background = element_rect()) 
     
   })
+  
+  output$sentiplot<-renderPlot({
+    
+    senti_set <- sentiDataSet()
+    
+    p6 <- ggplot(senti_set, aes(x=Date, group = Type, col = Type))
+    
+    p6 + geom_smooth(aes(y=value, linetype = Type, col=Type), size=1.5, formula=y ~ log(x)) +
+      scale_x_date(date_breaks = '5 year',date_labels = '%Y', name = "Date") + 
+      scale_y_continuous(name='Sentiment Score') + 
+      scale_linetype_manual(values=senti_line) +
+      theme(axis.text.x = element_text(angle = 30, hjust = 1), 
+            legend.position='bottom', legend.background = element_rect())
+    
+  })
+  
+  output$sentibox<-renderPlot({
+    
+    senti_set <- sentiDataSet()
+    
+    senti_set$Year <- as.factor(senti_set$Year)
+    
+    p7 <- ggplot(senti_set, aes(x=Year, y = value))
+    
+    p7 + geom_boxplot(aes(col = Type)) +
+      scale_x_discrete(name="Year", breaks=seq(1935,2020, by=5)) + 
+      scale_y_continuous(name='Sentiment Score') + 
+      scale_linetype_manual(values=senti_line) +
+      theme(axis.text.x = element_text(angle = 30, hjust = 1), 
+            legend.position='bottom', legend.background = element_rect())
+    
+  })
+  
+
+  
+  output$sentibar<-renderPlot({
+    
+    senti_bar_data <- sentiDataBar()
+    
+    senti_bar_data$Year <- as.factor(senti_bar_data$Year)
+    
+    p8 <- ggplot(senti_bar_data, aes(x=Year, y=Freq, group = Type, col = Type, fill=Type))
+    p8 + geom_bar(stat = "identity", position = "dodge") +
+      scale_x_discrete(name="Year", breaks=seq(1935,2020, by=5)) + 
+      scale_y_continuous(name='Sentiment Score') + 
+      theme(axis.text.x = element_text(angle = 30, hjust = 1), 
+            legend.position='bottom', legend.background = element_rect())
+    
+    
+  })
+  
+
+  
+  #p8 <- ggplot(average_sentiment, aes(x=Year, y=Freq, group = Type, col = Type, fill=Type))
+  #p8 + geom_bar(stat = "identity", position = "dodge")
+
+  
+  saveRDS(average_sentiment, "./data/average_sentiment.rds")
+  
+  #summary(average_sentiment$Year)
+  
+  #average_sentiment$Year <- average_sentiment$Year+1934
   
 })
