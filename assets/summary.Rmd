@@ -89,3 +89,14 @@ The sentiment of all debates was, throughout the 1930s and 1940s, predominantly 
 ## References
 
 Nielsen, Finn Årup. 2011. *AFINN*. Lyngby, Denmark: Informatics and Mathematical Modelling, Technical University of Denmark.
+
+
+### Notes
+
+Source code is available on [Github](https://github.com/EvanOdell/hansardBlog). For assistance, questions or comments please contact Evan Odell via [email](mailto:evan.odell@disabilityrightsuk.org) or  [twitter](https://twitter.com/evanodell), or raise an issue on Github.
+
+This app is licensed under an MIT License. 
+
+The data used in this app was retrieved from the [ParlParse](https://www.theyworkforyou.com/pwdata/scrapedxml/) service operated by [MySociety](https://www.mysociety.org/).
+
+This app was constructed using [Shiny](http://shiny.rstudio.com/), with plots produced with `ggplot2` and `scales`.
