@@ -12,16 +12,19 @@ How do politicians discuss disability issues? Has this changed over time? Are th
 #### Data set
 The ParlParse service, operated by Theyworkforyou.co.uk, records everything said in parliament from 1936 to the present day, allowing for 80 years of parliamentary debate and discussion to be analysed. The dataset includes 4,979,806 different speeches, of which 438,180 are included in this analysis, as they contain one or more of the disability phrases searched for.
 
-#### Frequency of mentions of disability-relevant phrases
+## Frequency of mentions of disability-relevant phrases
 
 I grouped 23 different disability relevant phrases into 15 groups. I selected phrases that are likely to be only used in relation to disability issues. This means that words such as 'blind' or 'deaf' cannot be used, as they are frequently used in non-disability discussion; e.g. 'the member opposite is deaf to the concerns of ordinary people'. The number of each group of phrases were counted for each day of debate in parliament, and averaged over the year.
 
-
-#### Sentiment analysis
+## Sentiment analysis
 
 In addition to the frequency of different words used in the Hansard, I wanted to see if there are any changes in the sentiment of disability discussion. I used the <a href="http://www2.imm.dtu.dk/pubdb/views/publication_details.php?id=6010" target="_blank">AFINN library by Finn Årup Nielsen</a> to assign a score from -5 (most negative) to +5 (most positive) to the words used in association with the different disability terms and phrases searched for in the Hansard.
 
-The orange 'All Debate' line is the sentiment score for a random sample of 4% of all debate in Parliament. The sentiment of all debates was, until 
+The sentiment analysis tab has three different charts you can toggle between. The default chart is a line chart showing a smoothed line of the average score trend over time. The second is a bar chart showing the average sentiment score each year, and the third is a box plot showing the distribution of sentiment scores in each year.
+
+The orange 'All Debate' group is the sentiment score for a random sample of 4% of all debate in Parliament, and the blue 'Disability' group is the sentiment score for all debates that involve any of the disability-relevant terms and phrases.
+
+The sentiment of all debates was, throughout the 1930s and 1940s, predominantly negative, on average. 1983 was the last year that disability debate was, on aggregate, negative, and 1994 was the first year where the sentiment in debate on disability issues was more positive than the average sentiment of parliamentary debate, and disability sentiment was also more positive than average every year from 1997 to 2010. Since 2011 disability sentiment has been less positive than overall debate sentiment, but the degree of positivity has increased year on year since 2013.
 
 
 

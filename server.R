@@ -31,14 +31,35 @@ shinyServer(function(input, output, session) {
   
   sentiDataSet <- reactive({
     
+    if(input$options == "All"){
+    
     senti_data <- disability_with_sample[disability_with_sample$Year >= input$senti_year[1]
                               & disability_with_sample$Year <= input$senti_year[2],]
+    } else {
+      
+      senti_data <- disability_with_sample[disability_with_sample$Year >= input$senti_year[1]
+                                           & disability_with_sample$Year <= input$senti_year[2]
+                                           & disability_with_sample$Type == input$debate_type,]
+      
+    }
+    
   })
   
   sentiDataBar <- reactive({
     
+    if(input$options == "All"){
+    
     senti_data <- average_sentiment[average_sentiment$Year >= input$senti_year[1]
                                   & average_sentiment$Year <= input$senti_year[2],]
+    
+    } else {
+      
+      senti_data <- average_sentiment[average_sentiment$Year >= input$senti_year[1]
+                                      & average_sentiment$Year <= input$senti_year[2]
+                                      & average_sentiment$Type == input$debate_type,]
+      
+    }
+    
   })
   
   line_colours <- c('Disabled Person'	=	'#006109',
@@ -137,7 +158,7 @@ shinyServer(function(input, output, session) {
     
     senti_bar_data$Year <- as.factor(senti_bar_data$Year)
     
-    p8 <- ggplot(senti_bar_data, aes(x=Year, y=Freq, group = Type, col = Type, fill=Type))
+    p8 <- ggplot(senti_bar_data, aes(x=Year, y=Freq, group = Type, col = Type, fill=Type,width=.75))
     p8 + geom_bar(stat = "identity", position = "dodge") +
       scale_x_discrete(name="Year", breaks=seq(1935,2020, by=5)) + 
       scale_y_continuous(name='Sentiment Score') + 
@@ -147,16 +168,7 @@ shinyServer(function(input, output, session) {
     
   })
   
-
+##next up, add comparison to total words
   
-  #p8 <- ggplot(average_sentiment, aes(x=Year, y=Freq, group = Type, col = Type, fill=Type))
-  #p8 + geom_bar(stat = "identity", position = "dodge")
-
-  
-  saveRDS(average_sentiment, "./data/average_sentiment.rds")
-  
-  #summary(average_sentiment$Year)
-  
-  #average_sentiment$Year <- average_sentiment$Year+1934
   
 })

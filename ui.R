@@ -30,12 +30,10 @@ body <- dashboardBody(
             fluidRow(
               column(width=9,
                      box(width=NULL,
+                         h3("Disability Discussion Frequency Chart"),
                          plotOutput('hansardplot')
-                     ),
-                     box(width=NULL,
-                     includeMarkdown("./assets/summary.Rmd"))
+                     )
               ),
-              
               column(width=3,
                      box(width=NULL,
                          
@@ -67,18 +65,21 @@ body <- dashboardBody(
             
             fluidRow(
               column(width=9,
-                     actionButton("toggle", "Switch Plot Type"),
+                     actionButton("toggle", "Switch Chart Type"),
                      box(width = NULL,
                          conditionalPanel(
                            condition = "input.toggle % 3 == 0",
+                           h3("Sentiment Line Chart"),
                            plotOutput('sentiplot')
                            ),
                          conditionalPanel(
-                           condition = "input.toggle % 3 == 1",
+                           condition = "input.toggle % 3 == 2",
+                           h3("Sentiment Box Chart"),
                            plotOutput('sentibox')
                            ),
                          conditionalPanel(
-                           condition = "input.toggle % 3 == 2",
+                           condition = "input.toggle % 3 == 1",
+                           h3("Sentiment Bar Chart"),
                            plotOutput('sentibar')
                          )
                          
@@ -88,7 +89,27 @@ body <- dashboardBody(
               column(width=3,
                      box(width = NULL,
                          sliderInput('senti_year', 'Year', 1936, 2016, value = c(1936, 2016), sep='')
+                     ),
+                     
+                     radioButtons(
+                       inputId="options",
+                       label="Display Options:",
+                       choices=list(
+                         "All",
+                         "Select Debate Type"
+                       ),
+                       selected="All"),
+                     
+                     conditionalPanel(
+                       condition = "input.options != 'All'",
+                       checkboxGroupInput(
+                         'debate_type', 
+                         'Debate Type to Show',
+                         choices=c("All Debate", "Disability"),
+                         selected = "Disability"
+                       )
                      )
+                     
               )
             )
     )
