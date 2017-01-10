@@ -1,0 +1,15 @@
+---
+title: "senti"
+author: "Evan Odell"
+date: Sys.Date()
+output: html_document
+---
+
+
+## Sentiment Analysis
+
+### Line Chart
+
+### Bar Chart
+
+### Box Chart

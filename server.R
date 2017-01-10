@@ -7,10 +7,16 @@ shinyServer(function(input, output, session) {
   
   disability_phrase_groups <- readRDS("./data/disability_phrase_groups.rds")
   
-  disability_with_sample <- readRDS("./data/disability_with_sample.rds")
+  afinn_combined <- readRDS("./data/afinn_combined.rds")
+  
+  #average_sentiment code is available on work computer
   
   average_sentiment <- readRDS("./data/average_sentiment.rds")
+    
+  #afinn_combined <- readRDS("./data/senti_combined.rds")
+    
   
+  ##Needed functions
   base_breaks <- function(n = 10){
     function(x) {
       axisTicks(log10(range(x, na.rm = TRUE)), log = TRUE, n = n)
@@ -21,47 +27,8 @@ shinyServer(function(input, output, session) {
     function(x) as.character(round(x,decimals))
   }
   
-  getDataSet <- reactive({
   
-  all_data <- disability_phrase_groups[disability_phrase_groups$Term == input$category_input
-                                      & disability_phrase_groups$Year >= input$year[1]
-                                      & disability_phrase_groups$Year <= input$year[2],]
-  })
-  
-  
-  sentiDataSet <- reactive({
-    
-    if(input$options == "All"){
-    
-    senti_data <- disability_with_sample[disability_with_sample$Year >= input$senti_year[1]
-                              & disability_with_sample$Year <= input$senti_year[2],]
-    } else {
-      
-      senti_data <- disability_with_sample[disability_with_sample$Year >= input$senti_year[1]
-                                           & disability_with_sample$Year <= input$senti_year[2]
-                                           & disability_with_sample$Type == input$debate_type,]
-      
-    }
-    
-  })
-  
-  sentiDataBar <- reactive({
-    
-    if(input$options == "All"){
-    
-    senti_data <- average_sentiment[average_sentiment$Year >= input$senti_year[1]
-                                  & average_sentiment$Year <= input$senti_year[2],]
-    
-    } else {
-      
-      senti_data <- average_sentiment[average_sentiment$Year >= input$senti_year[1]
-                                      & average_sentiment$Year <= input$senti_year[2]
-                                      & average_sentiment$Type == input$debate_type,]
-      
-    }
-    
-  })
-  
+  ##Needed formats
   line_colours <- c("Disabled Person"	=	"#006109",
                     "Disabled Men"	=	"#8a2093",
                     "Disabled Women"	=	"#00d38d",
@@ -79,23 +46,90 @@ shinyServer(function(input, output, session) {
                     "Retard"	=	"#ff7798")
   
   line_styles <- c("Disabled Person"	=	"solid",
-                    "Disabled Men"	=	"solid",
-                    "Disabled Women"	=	"solid",
-                    "Disabled Children"	=	"solid",
-                    "Disability Other"	=	"longdash",
-                    "People With Disability"	=	"longdash",
-                    "Children With Disability"	=	"longdash",
-                    "Any With Disability"	=	"longdash",
-                    "Independent Living"	=	"twodash",
-                    "Wheelchair"	=	"twodash",
-                    "Paralympic"	=	"twodash",
-                    "Spastic"	=	"dotdash",
-                    "Sub-Normal"	=	"dotdash",
-                    "Amputee"	=	"dotdash",
-                    "Retard"	=	"dotdash")
+                   "Disabled Men"	=	"solid",
+                   "Disabled Women"	=	"solid",
+                   "Disabled Children"	=	"solid",
+                   "Disability Other"	=	"longdash",
+                   "People With Disability"	=	"longdash",
+                   "Children With Disability"	=	"longdash",
+                   "Any With Disability"	=	"longdash",
+                   "Independent Living"	=	"twodash",
+                   "Wheelchair"	=	"twodash",
+                   "Paralympic"	=	"twodash",
+                   "Spastic"	=	"dotdash",
+                   "Sub-Normal"	=	"dotdash",
+                   "Amputee"	=	"dotdash",
+                   "Retard"	=	"dotdash")
   
   senti_line <- c("All Debate" = "solid",
                   "Disability" = "solid")
+  
+  senti_colour <- c("All Debate" = "red",
+                    "Disability" = "purple")
+  
+  
+  
+  getDataSet <- reactive({
+  
+  all_data <- disability_phrase_groups[disability_phrase_groups$Term == input$category_input
+                                     & disability_phrase_groups$Year >= input$year[1]
+                                     & disability_phrase_groups$Year <= input$year[2],]
+  })
+  
+  
+  sentiDataSet <- reactive({
+    
+    if(input$display_options == "All"){
+    
+    senti_data <- afinn_combined[afinn_combined$Year >= input$senti_year[1]
+                                       & afinn_combined$Year <= input$senti_year[2],]
+    } else {
+      
+      senti_data <- afinn_combined[afinn_combined$Year >= input$senti_year[1]
+                                         & afinn_combined$Year <= input$senti_year[2]
+                                         & afinn_combined$Type == input$debate_type,]
+      
+    }
+    
+  })
+  
+  #sentiDataSet <- reactive({
+    
+  #  if(input$display_options == "All"){
+      
+  #    senti_data <- afinn_combined[afinn_combined$Year >= input$senti_year[1]
+  #                            & afinn_combined$Year <= input$senti_year[2],]
+  #  } else {
+      
+  #    senti_data <- afinn_combined[afinn_combined$Year >= input$senti_year[1]
+  #                            & afinn_combined$Year <= input$senti_year[2]
+  #                            & afinn_combined$Type == input$debate_type
+  #                            & afinn_combined$sentiType == input$senti_options,]
+      
+  #  }
+    
+  #})
+  
+  sentiDataBar <- reactive({
+    
+    if(input$display_options == "All"){
+      
+      senti_data <- average_sentiment[average_sentiment$Year >= input$senti_year[1]
+                                    & average_sentiment$Year <= input$senti_year[2],]
+                                    #& average_sentiment$Type == input$senti_options,]
+      
+    } else {
+      
+      senti_data <- average_sentiment[average_sentiment$Year >= input$senti_year[1]
+                                    & average_sentiment$Year <= input$senti_year[2]
+                                    & average_sentiment$Type == input$debate_type,]
+                                    #& average_sentiment$sentiType == input$senti_options,]
+      
+    }
+    
+  })
+  
+  
   
   output$hansardplot<-renderPlot({
     
@@ -112,7 +146,8 @@ shinyServer(function(input, output, session) {
                          breaks = base_breaks(),
                          name="Average Mentions per Day (Logarithmic Scale)",
                          labels = fmt_dcimals(3)) + 
-      theme(axis.text.x = element_text(angle = 30, hjust = 1), 
+      theme(axis.text.x = element_text(angle = 30, hjust = 1),
+            text = element_text(size=14),
             legend.position="bottom", legend.background = element_rect()) 
     
   })
@@ -127,7 +162,9 @@ shinyServer(function(input, output, session) {
       scale_x_date(date_breaks = "5 year",date_labels = "%Y", name = "Date") + 
       scale_y_continuous(name="Sentiment Score") + 
       scale_linetype_manual(values=senti_line) +
+      scale_colour_manual(values=senti_colour) + 
       theme(axis.text.x = element_text(angle = 30, hjust = 1), 
+            text = element_text(size=14),
             legend.position="bottom", legend.background = element_rect())
     
   })
@@ -145,6 +182,7 @@ shinyServer(function(input, output, session) {
       scale_y_continuous(name="Sentiment Score") + 
       scale_linetype_manual(values=senti_line) +
       theme(axis.text.x = element_text(angle = 30, hjust = 1), 
+            text = element_text(size=14),
             legend.position="bottom", legend.background = element_rect())
     
   })
@@ -161,6 +199,7 @@ shinyServer(function(input, output, session) {
       scale_x_discrete(name="Year", breaks=seq(1935,2020, by=5)) + 
       scale_y_continuous(name="Sentiment Score") + 
       theme(axis.text.x = element_text(angle = 30, hjust = 1), 
+            text = element_text(size=14),
             legend.position="bottom", legend.background = element_rect())
     
   })

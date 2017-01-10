@@ -11,7 +11,6 @@
 
 <meta name="author" content="Evan Odell" />
 
-<meta name="date" content="2016-12-22" />
 
 <title>Summary</title>
 
@@ -119,7 +118,7 @@ $(document).ready(function () {
 
 <h1 class="title toc-ignore">Summary</h1>
 <h4 class="author"><em>Evan Odell</em></h4>
-<h4 class="date"><em>22 December 2016</em></h4>
+<h4 class="date"><em>Sys.Date()</em></h4>
 
 </div>
 
@@ -131,10 +130,21 @@ $(document).ready(function () {
 <h4>Data set</h4>
 <p>The ParlParse service, operated by Theyworkforyou.co.uk, records everything said in parliament from 1936 to the present day, allowing for 80 years of parliamentary debate and discussion to be analysed. The dataset includes 4,979,806 different speeches, of which 438,180 are included in this analysis, as they contain one or more of the disability phrases searched for.</p>
 </div>
-<div id="frequency-of-mentions-of-disability-relevant-phrases" class="section level4">
-<h4>Frequency of mentions of disability-relevant phrases</h4>
+<div id="frequency-of-mentions-of-disability-relevant-phrases" class="section level2">
+<h2>Frequency of mentions of disability-relevant phrases</h2>
 <p>I grouped 23 different disability relevant phrases into 15 groups. I selected phrases that are likely to be only used in relation to disability issues. This means that words such as ‘blind’ or ‘deaf’ cannot be used, as they are frequently used in non-disability discussion; e.g. ‘the member opposite is deaf to the concerns of ordinary people’. The number of each group of phrases were counted for each day of debate in parliament, and averaged over the year.</p>
 </div>
+<div id="sentiment-analysis" class="section level2">
+<h2>Sentiment analysis</h2>
+<p>In addition to the frequency of different words used in the Hansard, I wanted to see if there are any changes in the sentiment of disability discussion. There are three options for sentiment analysis:</p>
+<ol style="list-style-type: decimal">
+<li><p>The <a href="AFINN">http://www2.imm.dtu.dk/pubdb/views/publication_details.php?id=6010</a> library by Finn Årup Nielsen, labelled ‘AFINN’. AFINN assigns a score from -5 (most negative) to +5 (most positive) to the words used in association with the different disability terms and phrases searched for in the Hansard.</p></li>
+<li><p>The <a href="Opinion%20Mining,%20Sentiment%20Analysis">https://www.cs.uic.edu/~liub/FBS/sentiment-analysis.html</a>, and Opinion Spam Detection</a> dataset by Bing Liu, Minqing Hu and Junsheng Cheng, labelled ‘Bing’. Bing identifies a word as either positive or negative.</p></li>
+<li><p>The <a href="NRC%20Word-Emotion%20Association%20Lexicon">http://saifmohammad.com/WebPages/lexicons.html</a>, library by Saif M. Mohammad, labelled ‘NRC’. NRC assigns one of positive, negative, anger, anticipation, disgust, fear, joy, sadness, surprise and trust.</p></li>
+</ol>
+<p>The sentiment analysis tab has three different charts you can toggle between. The default chart is a line chart showing a smoothed line of the average score trend over time. The second is a bar chart showing the average sentiment score each year, and the third is a box plot showing the distribution of sentiment scores in each year.</p>
+<p>The orange ‘All Debate’ group is the sentiment score for a random sample of 4% of all debate in Parliament, and the blue ‘Disability’ group is the sentiment score for all debates that involve any of the disability-relevant terms and phrases.</p>
+<p>The sentiment of all debates was, throughout the 1930s and 1940s, predominantly negative, on average. 1983 was the last year that disability debate was, on aggregate, negative, and 1994 was the first year where the sentiment in debate on disability issues was more positive than the average sentiment of parliamentary debate, and disability sentiment was also more positive than average every year from 1997 to 2010. Since 2011 disability sentiment has been less positive than overall debate sentiment, but the degree of positivity has increased year on year since 2013.</p>
 <div id="phrases-used" class="section level4">
 <h4>Phrases Used</h4>
 <ul>
@@ -178,13 +188,17 @@ $(document).ready(function () {
 <li><p>‘retard’</p></li>
 </ul>
 </div>
-<div id="sentiment-analysis" class="section level4">
-<h4>Sentiment analysis</h4>
-<p>In addition to the frequency of different words used in the Hansard, I wanted to see if there are any changes in the sentiment of disability discussion. I used the <a href="http://www2.imm.dtu.dk/pubdb/views/publication_details.php?id=6010" target="_blank">AFINN library by Finn Årup Nielsen</a></p>
 </div>
 <div id="references" class="section level2">
 <h2>References</h2>
 <p>Nielsen, Finn Årup. 2011. <em>AFINN</em>. Lyngby, Denmark: Informatics and Mathematical Modelling, Technical University of Denmark.</p>
+<div id="notes" class="section level3">
+<h3>Notes</h3>
+<p>Source code is available on <a href="https://github.com/EvanOdell/hansardBlog">Github</a>. For assistance, questions or comments please contact Evan Odell via <a href="mailto:evan.odell@disabilityrightsuk.org">email</a> or <a href="https://twitter.com/evanodell">Twitter</a>, or raise an issue on Github.</p>
+<p>This app is licensed under an <a href="https://github.com/EvanOdell/hansardBlog/blob/master/LICENSE">MIT License</a>.</p>
+<p>The data used in this app was retrieved from the <a href="https://www.theyworkforyou.com/pwdata/scrapedxml/">ParlParse</a> service operated by <a href="https://www.mysociety.org/">MySociety</a>.</p>
+<p>This app was constructed using <a href="http://shiny.rstudio.com/"><code>shiny</code></a> and <code>shinydashboard</code>, with plots produced with <code>ggplot2</code> and <code>scales</code>. Access to the sentiment analysis libraries was through the <code>tidytext</code> package.</p>
+</div>
 </div>
 </div>
 

@@ -1,13 +1,13 @@
 ---
 title: "Summary"
 author: "Evan Odell"
-date: "22 December 2016"
+date: Sys.Date()
 output: html_document
 bibliography: ExportedItems.bib
 ---
 
-# Disability discussion in parliament 
-How do politicians discuss disability issues? Has this changed over time? Are there any relationships between how disability issues are debated in Parliament and the policy decisions made by governments? In an attempt to answer these questions I downloaded everything that has ever been said in the House of Commons from 1936 to the present day. 
+# Disability discussion in parliament
+How do politicians discuss disability issues? Has this changed over time? Are there any relationships between how disability issues are debated in Parliament and the policy decisions made by governments? In an attempt to answer these questions I downloaded everything that has ever been said in the House of Commons from 1936 to the present day.
 
 #### Data set
 The ParlParse service, operated by Theyworkforyou.co.uk, records everything said in parliament from 1936 to the present day, allowing for 80 years of parliamentary debate and discussion to be analysed. The dataset includes 4,979,806 different speeches, of which 438,180 are included in this analysis, as they contain one or more of the disability phrases searched for.
@@ -18,7 +18,13 @@ I grouped 23 different disability relevant phrases into 15 groups. I selected ph
 
 ## Sentiment analysis
 
-In addition to the frequency of different words used in the Hansard, I wanted to see if there are any changes in the sentiment of disability discussion. I used the <a href="http://www2.imm.dtu.dk/pubdb/views/publication_details.php?id=6010" target="_blank">AFINN library by Finn Årup Nielsen</a> to assign a score from -5 (most negative) to +5 (most positive) to the words used in association with the different disability terms and phrases searched for in the Hansard.
+In addition to the frequency of different words used in the Hansard, I wanted to see if there are any changes in the sentiment of disability discussion. There are three options for sentiment analysis:
+
+1. The [http://www2.imm.dtu.dk/pubdb/views/publication_details.php?id=6010](AFINN) library by Finn Årup Nielsen, labelled 'AFINN'. AFINN assigns a score from -5 (most negative) to +5 (most positive) to the words used in association with the different disability terms and phrases searched for in the Hansard.
+
+2. The [https://www.cs.uic.edu/~liub/FBS/sentiment-analysis.html](Opinion Mining, Sentiment Analysis), and Opinion Spam Detection</a> dataset by Bing Liu, Minqing Hu and Junsheng Cheng, labelled 'Bing'. Bing identifies a word as either positive or negative.
+
+3. The [http://saifmohammad.com/WebPages/lexicons.html](NRC Word-Emotion Association Lexicon), library by Saif M. Mohammad, labelled 'NRC'. NRC assigns one of positive, negative, anger, anticipation, disgust, fear, joy, sadness, surprise and trust.
 
 The sentiment analysis tab has three different charts you can toggle between. The default chart is a line chart showing a smoothed line of the average score trend over time. The second is a bar chart showing the average sentiment score each year, and the third is a box plot showing the distribution of sentiment scores in each year.
 
@@ -35,12 +41,12 @@ The sentiment of all debates was, throughout the 1930s and 1940s, predominantly 
   + 'disability'
 
 * Disabled People
-  + 'disabled person' 
+  + 'disabled person'
   + 'disabled people'
 
 * Disabled Children
   + 'disabled child
-  
+
 * People with Disability
   + 'person with a disability'
   + 'people with a disability'
@@ -95,8 +101,8 @@ Nielsen, Finn Årup. 2011. *AFINN*. Lyngby, Denmark: Informatics and Mathematica
 
 Source code is available on [Github](https://github.com/EvanOdell/hansardBlog). For assistance, questions or comments please contact Evan Odell via [email](mailto:evan.odell@disabilityrightsuk.org) or  [Twitter](https://twitter.com/evanodell), or raise an issue on Github.
 
-This app is licensed under an [MIT License](https://github.com/EvanOdell/hansardBlog/blob/master/LICENSE). 
+This app is licensed under an [MIT License](https://github.com/EvanOdell/hansardBlog/blob/master/LICENSE).
 
 The data used in this app was retrieved from the [ParlParse](https://www.theyworkforyou.com/pwdata/scrapedxml/) service operated by [MySociety](https://www.mysociety.org/).
 
-This app was constructed using [`shiny`](http://shiny.rstudio.com/) and `shinydashboard`, with plots produced with `ggplot2` and `scales`.
+This app was constructed using [`shiny`](http://shiny.rstudio.com/) and `shinydashboard`, with plots produced with `ggplot2` and `scales`. Access to the sentiment analysis libraries was through the `tidytext` package.

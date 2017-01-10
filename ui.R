@@ -17,7 +17,7 @@ body <- dashboardBody(
     tabItem(tabName = "discussion",
             
             fluidRow(
-              column(width=9,
+              column(width=10, offset = 1,
                      box(width=NULL,
                          includeMarkdown("./assets/summary.Rmd"))
               )
@@ -30,7 +30,9 @@ body <- dashboardBody(
                      box(width=NULL,
                          h3("Disability Discussion Frequency Chart"),
                          plotOutput("hansardplot")
-                     )
+                     ),
+                     box(width=NULL,
+                         includeMarkdown("./assets/senti.Rmd"))
               ),
               column(width=3,
                      box(width=NULL,
@@ -81,13 +83,15 @@ body <- dashboardBody(
                            plotOutput("sentibar")
                          )
                          
-                     )
+                     ),
+                     box(width=NULL,
+                         includeMarkdown("./assets/senti.Rmd"))
               ),
               
               column(width=3,
                      
                      radioButtons(
-                       inputId="options",
+                       inputId="display_options",
                        label="Display Options:",
                        choices=list(
                          "All",
@@ -95,8 +99,19 @@ body <- dashboardBody(
                        ),
                        selected="All"),
                      
+                     radioButtons(
+                       inputId="senti_options",
+                       label="Select Sentiment Library:",
+                       choices=list(
+                         "AFINN",
+                         "Bing",
+                         "NRC"
+                       ),
+                       selected="AFINN"),
+                     
+                     
                      conditionalPanel(
-                       condition = "input.options != 'All'",
+                       condition = "input.display_options != 'All'",
                        checkboxGroupInput(
                          "debate_type", 
                          "Debate Type to Show",
