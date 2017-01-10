@@ -36,7 +36,7 @@ Atlee2
 Churchill3
 Eden
 Macmillan
-DouglasHome
+DouglasHome 
 Wilson1 <- subset(afinn_combined, date >= "1964-10-16" & date <= "1966-03-31")
 Wilson2 <- subset(afinn_combined, date >= "1966-04-01" & date <= "1970-06-18")
 Heath <- subset(afinn_combined, date >= "1970-06-19" & date <= "1974-03-03")
