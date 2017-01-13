@@ -38,17 +38,21 @@ library(shinyjs)
 
 disability_phrase_groups <- readRDS("./data/disability_phrase_groups.rds")
 
-afinn_combined <- readRDS("./data/afinn_combined.rds")
+#afinn_combined <- readRDS("./data/afinn_combined.rds")
 
-#senti_combined <- readRDS("./data/senti_combined.rds")
+#senti_combined <- readRDS("./data/afinn_combined.rds")#FAKE
 
-average_sentiment <- readRDS("./data/average_sentiment.rds")
+senti_combined <- readRDS("./data/senti_combined.rds")
 
-#government_average <- readRDS("./data/government_average.rds")
+#average_sentiment <- readRDS("./data/average_sentiment.rds")
 
-#all_average <- readRDS("./data/all_average.rds")
+all_average <- readRDS("./data/all_average.rds")
 
-#party_average <- readRDS("./data/party_average.rds")
+#all_average <- readRDS("./data/average_sentiment.rds")###FAKE!!!
+
+government_average <- readRDS("./data/government_average.rds")
+
+party_average <- readRDS("./data/party_average.rds")
 
 
 base_breaks <- function(n = 10){
@@ -96,16 +100,34 @@ line_styles <- c("Disabled Person"	=	"solid",
 senti_line <- c("All Debate" = "dotted",
                 "Disability" = "solid")
 
+senti_colour <- c("All Debate" = "red",
+                  "Disability" = "purple")
+
 govt_line <- c("Government" = "solid",
                "Opposition" = "dotted")
 
-senti_colour <- c("All Debate" = "red",
-                  "Disability" = "purple")
+govt_colour <- c("Government" = "red",
+               "Opposition" = "purple")
+
+gov_type_colour <- c("All Debate.Government" = "#c65999",
+                    "All Debate.Opposition" = "#7aa456",
+                    "Disability.Government" = "#777acd",
+                    "Disability.Opposition" = "#c96d44")
 
 party_colour <- c("Liberal Democrat" = "#FDBB30",
                   "Conservative" = "#0087DC",
                   "Labour" = "#DC241f",
-                  "Other" = "grey")
+                  "Other" = "#2b2b2b")
+
+party_type_colour <- c("All Debate.Conservative" = "#0087DC",
+                       "Disability.Conservative" = "#a1dbff",
+                       "All Debate.Labour" = "#DC241f",
+                       "Disability.Labour" = "#e96461",
+                       "All Debate.Liberal Democrat" = "#FDBB30",
+                       "Disability.Liberal Democrat" = "#fedb91",
+                       "All Debate.Other" = "#2b2b2b",
+                       "Disability.Other" = "#bebebe")
+
 
 
 ```
@@ -202,21 +224,24 @@ There are also very clear and obvious spikes in the use of 'paralympics' every f
 
 
 
-## Sentiment analysis
+## Sentiment Analysis
 <a name="senti"></a>
 In addition to the frequency of different words used in the Hansard, I wanted to see if there are any changes in the sentiment of disability discussion. See [below](#senti_exp) for detailed information on how this chart was created.
 
 
 You can toggle between three different sentiment analysis charts. The default chart is a line chart with a smoothed line of the average sentiment score trend. The second is a bar chart showing the average sentiment score each calendar year, and the third is a box plot showing the distribution of sentiment scores in each year.
 
-The red 'All Debate' group is the sentiment score for a random sample of 5% of all debate in Parliament, and the purle 'Disability' group is the sentiment score for all debates that involve any of the disability-relevant terms and phrases.
+The red 'All Debate' group is the sentiment score for a random sample of 1% of all debate in Parliament, and the purle 'Disability' group is the sentiment score for all debates that involve any of the disability-relevant terms and phrases.
 
 The sentiment of all debates was, throughout the 1930s and 1940s, predominantly negative, on average. 1983 was the last year that disability debate was, on aggregate, negative, and 1994 was the first year where the sentiment in debate on disability issues was more positive than the average sentiment of parliamentary debate, and disability sentiment was also more positive than average every year from 1997 to 2010. Since 2011 disability sentiment has been less positive than overall debate sentiment, but the degree of positivity has increased year on year since 2013.
 
 ## Sentiment Charts
 
+I have three created three sets of interactive charts. The [first set](#all_v_dis) compares all debate to debate on disability. The [second](#gov_dis) compares the government to the opposition, and the [third](#party_dis) compares different political parties. You can select from different sentiment libraries (the differences between them are explained [below](#senti_exp)), highlight only disability debate and focus in on particular years.
+
 ### All Debate vs Disability
 <a name="senti_chart"></a>
+<a name="all_v_dis"></a>
 
 ```{r, echo=FALSE}
 
@@ -225,23 +250,23 @@ shinyApp(
 ui <- fluidPage(
   
   column(width=9,
-                     actionButton("toggle", "Switch Chart Type"),
                      
                          conditionalPanel(
                            condition = "input.toggle % 3 == 0",
-                           h4("Sentiment Line Chart"),
+                           h5("Sentiment Line Chart"),
                            plotOutput("sentiplot")
                            ),
                          conditionalPanel(
                            condition = "input.toggle % 3 == 2",
-                           h4("Sentiment Box Chart"),
+                           h5("Sentiment Box Chart"),
                            plotOutput("sentibox")
                            ),
                          conditionalPanel(
                            condition = "input.toggle % 3 == 1",
-                           h4("Sentiment Bar Chart"),
+                           h5("Sentiment Bar Chart"),
                            plotOutput("sentibar")
-                         )
+                         ),
+         actionButton("toggle", "Switch Chart Type")
               ),
               
               column(width=3,
@@ -253,15 +278,17 @@ ui <- fluidPage(
                          selected =c("All Debate", "Disability")
                        ),
                      
-                    # radioButtons(
-                    #   inputId="senti_options",
-                    #   label="Select Sentiment Library:",
-                    #   choices=list(
-                    #     "AFINN",
-                    #     "Bing",
-                    #     "NRC"
-                    #   ),
-                    #   selected="AFINN"),
+                     radioButtons(
+                       inputId="senti_options",
+                       label="Select Sentiment Library:",
+                       choices=c(
+                         "AFINN"="afinn_sentiment",
+                         "Bing"="bing_sentiment",
+                         "NRC"="nrc_sentiment",
+                         "Hu Liu"="hu_sentiment",
+                         "Sentiword"="sentiword_sentiment"
+                       ),
+                       selected="afinn_sentiment"),
                      
                        sliderInput("senti_year", "Year", 1936, 2016,
                                    value = c(1936, 2016), sep="")
@@ -276,31 +303,31 @@ server <- function(input, output, session) {
   
   sentiDataSet <- reactive({
             
-            senti_data <- afinn_combined[afinn_combined$year >= input$senti_year[1] 
-                                         & afinn_combined$year <= input$senti_year[2] 
-                                         & afinn_combined$type == input$debate_type,]
+            senti_data <- senti_combined[senti_combined$year >= input$senti_year[1] 
+                                         & senti_combined$year <= input$senti_year[2]
+                                         & senti_combined$senti_type == input$senti_options
+                                         & senti_combined$debate_type %in% input$debate_type,]
         
     })
 
 
- sentiDataBar <- reactive({##Need updated average dataset
+ sentiDataBar <- reactive({
     
-      senti_data <- average_sentiment[average_sentiment$Year >= input$senti_year[1]
-                                    & average_sentiment$Year <= input$senti_year[2]
-                                    & average_sentiment$Type == input$debate_type,]
-                                    #& average_sentiment$sentiType == input$senti_options,]
+      senti_data <- all_average[all_average$year >= input$senti_year[1]
+                                    & all_average$year <= input$senti_year[2]
+                                    & all_average$debate_type == input$debate_type
+                                    & all_average$senti_type == input$senti_options,]
   
   })
   
   
   output$sentiplot <- renderPlot({
-    
       
     senti_set <- sentiDataSet()
     
-    p6 <- ggplot(senti_set, aes(x=date, group = type, col = type))
+    p6 <- ggplot(senti_set, aes(x=speech_date, group = debate_type, col = debate_type))
     
-    p6 + geom_smooth(aes(y=sentiment, linetype = type, col=type), size=1.5, formula=y ~ log(x)) +
+    p6 + geom_smooth(aes(y=sentiment, linetype = debate_type, col=debate_type), size=1.5, formula=y ~ log(x)) +
       scale_x_date(date_breaks = "5 year",date_labels = "%Y", name = "Date") + 
       scale_y_continuous(name="Sentiment Score") + 
       scale_linetype_manual(values=senti_line) +
@@ -311,7 +338,27 @@ server <- function(input, output, session) {
     
   })
   
-  output$sentibox<-renderPlot({
+ output$sentibar<-renderPlot({
+    
+    senti_bar_data <- sentiDataBar()
+    
+    senti_bar_data$year <- as.factor(senti_bar_data$year)
+    
+    p8 <- ggplot(senti_bar_data, aes(x=year, y=sentiment, group = debate_type, col = debate_type, fill=debate_type, width=.75))
+    
+    p8 + geom_bar(stat = "identity", position = "dodge") +
+      scale_x_discrete(name="Year", breaks=seq(1935,2020, by=5)) + 
+      scale_y_continuous(name="Sentiment Score") + 
+      scale_colour_manual(values=senti_colour) + 
+      scale_fill_manual(values=senti_colour) + 
+      theme(axis.text.x = element_text(angle = 30, hjust = 1), 
+            text = element_text(size=14),
+            legend.position="bottom", legend.background = element_rect())+ 
+  guides(fill=guide_legend(title=NULL))
+    
+  })
+ 
+   output$sentibox<-renderPlot({
     
     senti_set <- sentiDataSet()
     
@@ -319,7 +366,7 @@ server <- function(input, output, session) {
     
     p7 <- ggplot(senti_set, aes(x=year, y = sentiment, width=.75))
     
-    p7 + geom_boxplot(aes(col = type)) +
+    p7 + geom_boxplot(aes(col = debate_type)) +
       scale_x_discrete(name="Year", breaks=seq(1935,2020, by=5)) + 
       scale_y_continuous(name="Sentiment Score") + 
       scale_linetype_manual(values=senti_line) +
@@ -329,27 +376,7 @@ server <- function(input, output, session) {
             legend.position="bottom", legend.background = element_rect())
     
   })
-  
- output$sentibar<-renderPlot({
     
-    senti_bar_data <- sentiDataBar()
-    
-    senti_bar_data$Year <- as.factor(senti_bar_data$Year)
-    
-    p8 <- ggplot(senti_bar_data, aes(x=Year, y=Freq, group = Type, col = Type, fill=Type, width=.75))
-    
-    p8 + geom_bar(stat = "identity", position = "dodge") +
-      scale_x_discrete(name="Year", breaks=seq(1935,2020, by=5)) + 
-      scale_y_continuous(name="Sentiment Score") + 
-      scale_colour_manual(values=senti_colour) + 
-      scale_fill_manual(values=senti_colour) + 
-      theme(axis.text.x = element_text(angle = 30, hjust = 1), 
-            text = element_text(size=14),
-            legend.position="bottom", legend.background = element_rect())
-    
-  })
-    
-  
 },
 options = list(height = 600)
 )
@@ -358,8 +385,8 @@ options = list(height = 600)
 
 
 ### Government vs Opposition
-
-These charts show the scores for all debate and disability debate, seperated between government and opposition, from 1997 to the end of 2016.
+<a name="gov_dis"></a>
+These charts show the scores for all debate and disability debate, seperated between government and opposition, from 2000 <!-- Check date here!--> to the end of 2016.
 
 ```{r, echo=FALSE}
 
@@ -368,8 +395,6 @@ shinyApp(
 ui <- fluidPage(
   
   column(width=9,
-                     actionButton("toggle", "Switch Chart Type"),
-                     
                          conditionalPanel(
                            condition = "input.toggle % 3 == 0",
                            h4("Sentiment Line Chart"),
@@ -384,49 +409,42 @@ ui <- fluidPage(
                            condition = "input.toggle % 3 == 1",
                            h4("Sentiment Bar Chart"),
                            plotOutput("senti_gov_bar")
-                         )
+                         ),
+                    actionButton("toggle", "Switch Chart Type")
               ),
               
               column(width=3,
-                     
-                     radioButtons(
-                       inputId="display_options",
-                       label="Display Options:",
-                       choices=list(
-                         "All",
-                         "Select Debate Type"
-                       ),
-                       selected="All"),
-                     
-                     conditionalPanel(
-                       condition = "input.display_options != 'All'",
+
                        checkboxGroupInput(
                          "debate_type", 
                          "Debate Type to Show",
                          choices=c("All Debate", "Disability"),
-                         selected = "Disability"
-                       )),
+                         selected =c("All Debate", "Disability")
+                       ),
                      
-                    # radioButtons(
-                    #   inputId="senti_options",
-                    #   label="Select Sentiment Library:",
-                    #   choices=list(
-                    #     "AFINN",
-                    #     "Bing",
-                    #     "NRC"
-                    #   ),
-                    #   selected="AFINN"),
-                    
-                    radioButtons(
-                       inputId="party_options",
-                       label="Select Sorting Style:",
-                       choices=list(
-                         "All",
+                     checkboxGroupInput(
+                       inputId="gov_options",
+                       label="Select Government or Opposition:",
+                       choices=c(
                          "Government",
                          "Opposition"
                        ),
-                       selected="All"),
+                       selected=c(
+                         "Government",
+                         "Opposition"
+                       )),
                      
+                     radioButtons(
+                       inputId="senti_options",
+                       label="Select Sentiment Library:",
+                       choices=c(
+                         "AFINN"="afinn_sentiment",
+                         "Bing"="bing_sentiment",
+                         "NRC"="nrc_sentiment",
+                         "Hu Liu"="hu_sentiment",
+                         "Sentiword"="sentiword_sentiment"
+                       ),
+                       selected="afinn_sentiment"),
                  
                        sliderInput("senti_year2", "Year", 2000, 2016,
                                    value = c(2000, 2016), sep=""))
@@ -436,61 +454,45 @@ ui <- fluidPage(
 server <- function(input, output, session) {
 
   sentiDataGov <- reactive({
-  
-    if(input$display_options == "All" ){
     
-  senti_data <- afinn_combined[afinn_combined$year >= input$senti_year2[1]
-                             & afinn_combined$year <= input$senti_year2[2]
-                             & afinn_combined$government != "NA",]
-    } else {
-      
-  senti_data <- afinn_combined[afinn_combined$year >= input$senti_year2[1]
-                             & afinn_combined$year <= input$senti_year2[2]
-                             & afinn_combined$type == input$debate_type
-                             & afinn_combined$government != "NA",]
-      
-    }
+            senti_data <- senti_combined[senti_combined$year >= input$senti_year2[1] 
+                                         & senti_combined$year <= input$senti_year2[2]
+                                         & senti_combined$senti_type == input$senti_options
+                                         & senti_combined$government %in% input$gov_options
+                                         & senti_combined$debate_type %in% input$debate_type,]
 
-  
+
 })
 
+    
+ 
+   sentiDataBar <- reactive({
+    
+      senti_data_bar <- government_average[government_average$year >= input$senti_year2[1]
+                                    & government_average$year <= input$senti_year2[2]
+                                    & government_average$debate_type %in% input$debate_type
+                                    & government_average$government %in% input$gov_options
+                                    & government_average$senti_type == input$senti_options,]
+  
+  })
   
   
  output$senti_gov <- renderPlot({
     
-       senti_set <- sentiDataGov()
-       
-    p6 <- ggplot(senti_set, aes(x=date))
-    
-    p6 + geom_smooth(aes(y=sentiment, group = interaction(type,government),
-                         linetype = government, col = type), size=1.5, formula=y ~ log(x)) +
-      scale_x_date(date_breaks = "5 year",date_labels = "%Y", name = "Date") + 
-      scale_y_continuous(name="Sentiment Score") + 
-      scale_linetype_manual(values=govt_line) +
-      scale_colour_manual(values=senti_colour) + 
-      theme(axis.text.x = element_text(angle = 30, hjust = 1), 
-            text = element_text(size=14),
-            legend.position="bottom", legend.background = element_rect())
-    
-  })
- 
- 
-  output$senti_gov_box<-renderPlot({
-    
     senti_set <- sentiDataGov()
+       
+    p6 <- ggplot(senti_set, aes(x=speech_date))
     
-    senti_set$year <- as.factor(senti_set$year)
-    
-    p7 <- ggplot(senti_set, aes(x=year, y = sentiment, width=.75))
-    
-    p7 + geom_boxplot(aes(col = type, fill=government)) +
-      scale_x_discrete(name="Year", breaks=seq(1995,2020, by=5)) + 
-      scale_y_continuous(name="Sentiment Score") + 
-      scale_linetype_manual(values=senti_line) +
-      scale_colour_manual(values=senti_colour) + 
-      theme(axis.text.x = element_text(angle = 30, hjust = 1), 
-            text = element_text(size=14),
-            legend.position="bottom", legend.background = element_rect())
+
+p6 + geom_smooth(aes(y=sentiment, group = interaction(debate_type, government),
+                     linetype = debate_type, col = government), size=1.5, formula=y ~ log(x)) +
+  scale_x_date(date_breaks = "2 year",date_labels = "%Y", name = "Date") + 
+  scale_y_continuous(name="Sentiment Score") + 
+  scale_linetype_manual(values=senti_line) +
+  scale_colour_manual(values=govt_colour) +
+  theme(axis.text.x = element_text(angle = 30, hjust = 1), 
+        text = element_text(size=14),
+        legend.position="bottom", legend.background = element_rect())
     
   })
   
@@ -498,13 +500,38 @@ server <- function(input, output, session) {
     
     senti_bar_data <- sentiDataBar()
     
-    senti_bar_data$Year <- as.factor(senti_bar_data$Year)
+    senti_bar_data$year <- as.factor(senti_bar_data$year)
     
-    p8 <- ggplot(senti_bar_data, aes(x=Year, y=Freq, group = Type, col = Type, fill=Type, width=.75))
+
+p8 <- ggplot(senti_bar_data, aes(x=year, y=sentiment, group = interaction(debate_type, government),
+                                 fill = interaction(debate_type, government), width=.75))
+
+p8 + geom_bar(stat = "identity", position = "dodge") +
+  scale_x_discrete(name="Year", breaks=seq(2000,2020, by=2)) + 
+  scale_y_continuous(name="Sentiment Score") + 
+  scale_colour_manual(values=gov_type_colour) + 
+  theme(axis.text.x = element_text(angle = 30, hjust = 1), 
+        text = element_text(size=14),
+        legend.position="bottom", legend.background = element_rect()) + 
+  guides(fill=guide_legend(title=NULL))
+
+
     
-    p8 + geom_bar(stat = "identity", position = "dodge") +
-      scale_x_discrete(name="Year", breaks=seq(1935,2020, by=5)) + 
+  })
+ 
+  output$senti_gov_box <- renderPlot({
+    
+    senti_set <- sentiDataGov()
+    
+    senti_set$year <- as.factor(senti_set$year)
+    
+    p7 <- ggplot(senti_set, aes(x=year, y = sentiment, width=.75))
+    
+    p7 + geom_boxplot(aes(col = debate_type, fill=government)) +
+      scale_x_discrete(name="Year", breaks=seq(2000,2020, by=2)) + 
       scale_y_continuous(name="Sentiment Score") + 
+      scale_linetype_manual(values=senti_line) +
+      scale_colour_manual(values=senti_colour) + 
       theme(axis.text.x = element_text(angle = 30, hjust = 1), 
             text = element_text(size=14),
             legend.position="bottom", legend.background = element_rect())
@@ -519,10 +546,9 @@ options = list(height = 600)
 ```
 
 
-
-
 ### By Party
-
+<a name="party_dis"></a>
+These charts show the scores for all debate and disability debate, seperated between different parties, from 2000 <!-- Check date here!--> to the end of 2016. Conservatives and Liberal Democrats are their own parties, Labour and Labour Co-op MPs are grouped together as Labour. All other parties are grouped together as Other. <!-- As and when, add SDP to liberal democrats -->
 
 ```{r, echo=FALSE}
 
@@ -531,7 +557,7 @@ shinyApp(
 ui <- fluidPage(
   
   column(width=9,
-                     actionButton("toggle", "Switch Chart Type"),
+                     
                      
                          conditionalPanel(
                            condition = "input.toggle % 3 == 0",
@@ -547,109 +573,83 @@ ui <- fluidPage(
                            condition = "input.toggle % 3 == 1",
                            h4("Sentiment Bar Chart"),
                            plotOutput("senti_party_bar")
-                         )
+                         ),
+         actionButton("toggle", "Switch Chart Type")
               ),
               
               column(width=3,
-                     
-                     radioButtons(
-                       inputId="display_options",
-                       label="Display Options:",
-                       choices=list(
-                         "All",
-                         "Select Debate Type"
-                       ),
-                       selected="All"),
-                     
-                     conditionalPanel(
-                       condition = "input.display_options != 'All'",
+
                        checkboxGroupInput(
                          "debate_type", 
                          "Debate Type to Show",
                          choices=c("All Debate", "Disability"),
-                         selected = "Disability"
-                       )),
-                     
-                    # radioButtons(
-                    #   inputId="senti_options",
-                    #   label="Select Sentiment Library:",
-                    #   choices=list(
-                    #     "AFINN",
-                    #     "Bing",
-                    #     "NRC"
-                    #   ),
-                    #   selected="AFINN"),
-                    
-                    radioButtons(
-                       inputId="party_display_options",
-                       label="Party Display Options:",
-                       choices=list(
-                         "All",
-                         "Select Party"
+                         selected = c("All Debate", "Disability")
                        ),
-                       selected="All"),
-                    
-                    conditionalPanel(
-                       condition = "input.party_display_options != 'All'",
-                    
-                    checkboxGroupInput(
+                     
+                     checkboxGroupInput(
                        inputId="party_options",
                        label="Select Parties:",
-                       choices=list(
+                       choices=c(
                          "Conservative",
                          "Labour",
                          "Liberal Democrat",
                          "Other"
-                       ),selected =list(
+                       ),selected =c(
                          "Conservative",
                          "Labour",
                          "Liberal Democrat")
-                       )),
+                       ),
                      
-    
+                     radioButtons(
+                       inputId="senti_options",
+                       label="Select Sentiment Library:",
+                       choices=c(
+                         "AFINN"="afinn_sentiment",
+                         "Bing"="bing_sentiment",
+                         "NRC"="nrc_sentiment",
+                         "Hu Liu"="hu_sentiment",
+                         "Sentiword"="sentiword_sentiment"
+                       ),
+                       selected="afinn_sentiment"),
+
                        sliderInput("senti_year2", "Year", 2000, 2016,
                                    value = c(2000, 2016), sep=""))
 
-                     
-  
-  
 ), 
 
 server <- function(input, output, session) {
   
-
-  
-  
   sentiDataParty <- reactive({
-  
-    if(input$display_options == "All" ){
-    
-  senti_data <- afinn_combined[afinn_combined$year >= input$senti_year2[1]
-                             & afinn_combined$year <= input$senti_year2[2]
-                             & afinn_combined$party_group == input$party_options,]
-    } else {
-      
-  senti_data <- afinn_combined[afinn_combined$year >= input$senti_year2[1]
-                             & afinn_combined$year <= input$senti_year2[2]
-                             & afinn_combined$type == input$debate_type
-                             & afinn_combined$party_group == input$party_options,]
-      
-    }
-
+            
+            senti_data <- senti_combined[senti_combined$year >= input$senti_year2[1] 
+                                         & senti_combined$year <= input$senti_year2[2]
+                                         & senti_combined$senti_type == input$senti_options
+                                         & senti_combined$party_group %in% input$party_options
+                                         & senti_combined$debate_type %in% input$debate_type,]
   
 })
 
+
+   sentiDataBar <- reactive({
+    
+      senti_data_bar <- party_average[party_average$year >= input$senti_year2[1]
+                                    & party_average$year <= input$senti_year2[2]
+                                    & party_average$debate_type %in% input$debate_type
+                                    & party_average$party_group %in% input$party_options
+                                    & party_average$senti_type == input$senti_options,]
+  
+  })
   
   
  output$senti_party <- renderPlot({
     
        senti_set <- sentiDataParty()
        
-    p6 <- ggplot(senti_set, aes(x=date))
+    p6 <- ggplot(senti_set, aes(x=speech_date))
     
-    p6 + geom_smooth(aes(y=sentiment, group = interaction(type,party_group),
-                         linetype = type, col = party_group), size=1.5, formula=y ~ log(x)) +
-      scale_x_date(date_breaks = "5 year",date_labels = "%Y", name = "Date") + 
+    p6 + geom_smooth(aes(y=sentiment, group = interaction(debate_type, party_group),
+                         linetype = debate_type, col = party_group), size=1.5, formula=y ~ log(x)) +
+      scale_x_date(date_breaks = "2 year",date_labels = "%Y", name = "Date") + 
       scale_y_continuous(name="Sentiment Score") + 
       scale_linetype_manual(values=senti_line) +
       scale_colour_manual(values=party_colour) + 
@@ -659,18 +659,37 @@ server <- function(input, output, session) {
     
   })
  
- 
+ output$senti_party_bar<-renderPlot({
+    
+    senti_bar_data <- sentiDataBar()
+    
+    senti_bar_data$year <- as.factor(senti_bar_data$year)
+    
+p9 <- ggplot(senti_bar_data, aes(x=interaction(year, party_group, lex.order = TRUE), y=sentiment, group = interaction(debate_type, party_group),
+                             fill = interaction(debate_type, party_group), width=.75))
+
+p9 + geom_bar(stat = "identity", position = "dodge") +
+  scale_x_discrete(name="Year", breaks=seq(2000,2020, by=2)) + 
+  scale_y_continuous(name="Sentiment Score") + 
+  scale_fill_manual(values=party_type_colour) + 
+  theme(axis.text.x = element_text(angle = 30, hjust = 1), 
+        text = element_text(size=14),
+        legend.position="bottom", legend.background = element_rect()) + 
+  guides(fill=guide_legend(title=NULL))
+
+    
+  })
  
   output$senti_party_box<-renderPlot({
     
-    senti_set <- sentiDataGov()
+    senti_set <- sentiDataParty()
     
     senti_set$year <- as.factor(senti_set$year)
     
     p7 <- ggplot(senti_set, aes(x=year, y = sentiment, width=.75))
     
-    p7 + geom_boxplot(aes(col = type, fill=party_group)) +
-      scale_x_discrete(name="Year", breaks=seq(1995,2020, by=5)) + 
+    p7 + geom_boxplot(aes(col = debate_type, fill=party_group)) +
+      scale_x_discrete(name="Year", breaks=seq(2000,2020, by=2)) + 
       scale_y_continuous(name="Sentiment Score") + 
       scale_linetype_manual(values=senti_line) +
       scale_colour_manual(values=senti_colour) + 
@@ -681,24 +700,6 @@ server <- function(input, output, session) {
     
   })
   
- output$senti_party_bar<-renderPlot({
-    
-    senti_bar_data <- sentiDataBar()
-    
-    senti_bar_data$Year <- as.factor(senti_bar_data$Year)
-    
-    p8 <- ggplot(senti_bar_data, aes(x=Year, y=Freq, group = Type, col = Type, fill=Type, width=.75))
-    
-    p8 + geom_bar(stat = "identity", position = "dodge") +
-      scale_x_discrete(name="Year", breaks=seq(1935,2020, by=5)) + 
-      scale_y_continuous(name="Sentiment Score") + 
-      theme(axis.text.x = element_text(angle = 30, hjust = 1), 
-            text = element_text(size=14),
-            legend.position="bottom", legend.background = element_rect())
-    
-  })
- 
- 
 },
 options = list(height = 600)
 )
@@ -710,15 +711,11 @@ options = list(height = 600)
 
 
 
-
-
-
-
 ## Methodology
 
 <a name="senti_exp"></a>
 
-There are three options for sentiment analysis:
+There are three <!-- There are almost certainly more --> options for sentiment analysis:
 
 1. The [http://www2.imm.dtu.dk/pubdb/views/publication_details.php?id=6010](AFINN) library by Finn Årup Nielsen, labelled 'AFINN'. AFINN assigns a score from -5 (most negative) to +5 (most positive) to the words used in association with the different disability terms and phrases searched for in the Hansard.
 
@@ -726,13 +723,15 @@ There are three options for sentiment analysis:
 
 3. The [http://saifmohammad.com/WebPages/lexicons.html](NRC Word-Emotion Association Lexicon), library by Saif M. Mohammad, labelled 'NRC'. NRC assigns one of positive, negative, anger, anticipation, disgust, fear, joy, sadness, surprise and trust.
 
+4. The Hu & Liu dataset.
 
+5. The Sentiwords dataset.
 
 
 ### Dataset
 The [ParlParse](http://parser.theyworkforyou.com/) service, operated by [They Work For You](https://www.theyworkforyou.com/), records everything said in parliament from 1936 to the present day. The full dataset includes 5,440,317 different speeches, of which [438,180][FIX NUMBER!] are included in disability dataset, as they contain one or more of the disability phrases searched for. There are a further [however many] entries in the all debate dataset, representing a random sample of 5% of all Hansard entries.
 
-The ParlParse service does not record the party affiliation of MPs, or an ID number that can be matched to data from the UK parliament, and so identification of party affiliation was done primarily by hand, comparing the reported names in the datasets to official registers of current and former MPs. For older MPs I often had to search online for other archival records in order to identify them. MPs who have been members of multiple parties are recorded as having been a member of the party to which they are most recently affiliated [should see about fixing this]. Due to the sheer volume of data and the inconsistent naming conventions in older Hansard records, party affiliations are only reliably identified (which I define as greater than 99% of speakers and parties correctly identified) from [1997][update as needed] onwards.
+The ParlParse service does not record the party affiliation of MPs, or an ID number that can be matched to data from the UK parliament, and so identification of party affiliation was done primarily by hand, comparing the reported names in the datasets to official registers of current and former MPs. For older MPs I often had to search online for other archival records in order to identify them. MPs who have been members of multiple parties are recorded as having been a member of the party to which they are most recently affiliated [should see about fixing this]. Due to the sheer volume of data and the inconsistent naming conventions in older Hansard records, party affiliations are only reliably identified from 1997 <!--Update as needed --> onwards.
 
 
 ## Phrases Used
@@ -740,62 +739,62 @@ The ParlParse service does not record the party affiliation of MPs, or an ID num
 <a name="word_list"></a>
 
 * Disability Other
-  + 'disability'
+    + 'disability'
 
 * Disabled People
-  + 'disabled person'
-  + 'disabled people'
+    + 'disabled person'
+    + 'disabled people'
 
 * Disabled Children
-  + 'disabled child
+    + 'disabled child'
 
 * People with Disability
-  + 'person with a disability'
-  + 'people with a disability'
-  + 'people with disabilities'
-  + 'person with disabilities'
+    + 'person with a disability'
+    + 'people with a disability'
+    + 'people with disabilities'
+    + 'person with disabilities'
 
 * Any with Disability
-  + 'with a disability'
-  + 'with disabilities'
+    + 'with a disability'
+    + 'with disabilities'
 
 * Disabled Men
-  + 'disabled men'
+    + 'disabled men'
 
 * Disabled Men
-  + 'disabled women'
+    + 'disabled women'
 
 * Children with Disability
-  + 'child with a disability'
-  + 'children with a disability'
-  + 'children with disabilities'
-  + 'child with disabilities'
+    + 'child with a disability'
+    + 'children with a disability'
+    + 'children with disabilities'
+    + 'child with disabilities'
 
 * Independent Living
-  + 'independent living'
+    + 'independent living'
 
 * Wheelchair
-  + 'wheelchair'
+    + 'wheelchair'
 
 * Paralympic
-  + 'paralympic'
+    + 'paralympic'
 
 * Spastic
-  + 'spastic'
+    + 'spastic'
 
 * Sub-Normal
-  + 'sub_normal'
+    + 'sub_normal'
 
 * Amputee
-  + 'amputee'
+    + 'amputee'
 
 * Retard
-  + 'retard'
+    + 'retard'
 
 
 
-## References
-
+## References 
+<!--ADD REFERENCES -->
 Nielsen, Finn Årup. 2011. *AFINN*. Lyngby, Denmark: Informatics and Mathematical Modelling, Technical University of Denmark.
 
 
@@ -805,6 +804,6 @@ Source code is available on [Github](https://github.com/EvanOdell/hansardBlog). 
 
 This app is licensed under an [MIT License](https://github.com/EvanOdell/hansardBlog/blob/master/LICENSE).
 
-The data used in this app was retrieved from the [ParlParse](https://www.theyworkforyou.com/pwdata/scrapedxml/) service operated by [MySociety](https://www.mysociety.org/).
+The data used in this app was retrieved from the [ParlParse](https://www.theyworkforyou.com/pwdata/scrapedxml/) service operated by [MySociety](https://www.mysociety.org/). <!-- link to dataset -->
 
-This app was constructed using [`shiny`](http://shiny.rstudio.com/) and `shinydashboard`, with plots produced with `ggplot2` and `scales`. Access to the sentiment analysis libraries was through the `tidytext` package.
+This app was constructed using [`shiny`](http://shiny.rstudio.com/). Plots are produced with `ggplot2` and `scales`. Sentiment analysis was conducted using the [`sentimentr`](https://cran.r-project.org/package=sentimentr), [`syuzhet`](https://cran.r-project.org/package=syuzhet), [`lexicon`](https://cran.r-project.org/package=lexicon) and [`RSentiment`](https://cran.r-project.org/package=RSentiment) packages.

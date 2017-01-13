@@ -1,77 +1,95 @@
 
 library(lubridate)
 library(reshape2)
+library(magrittr)
+library(readr)
+#senti_combined <- readRDS("./data/senti_combined.rds")
+
 senti_combined <- readRDS("senti_combined.rds")
 
-summary(senti_combined)
-
-senti_combined$year <- year(senti_combined$date)
-
-senti_combined$type <- as.factor(senti_combined$type)
+senti_combined$party <- as.factor(senti_combined$party)
 
 senti_combined$party_group <- as.factor(senti_combined$party_group)
 
-senti_combined <- melt(senti_combined, id.vars = c("date", "year", "party_group", "type"))
+senti_combined$party_group [is.na(senti_combined$party_group )] <- "Other"
 
-senti_combined <- data.frame(senti_combined, stringsAsFactors = FALSE)
+senti_combined$sentences <- NULL
+senti_combined$id <- NULL
+senti_combined$colnum <- NULL
+senti_combined$time <- NULL
+senti_combined$url <- NULL
+senti_combined$speaker <- NULL
+senti_combined$proper_id <- NULL
+senti_combined$party <- NULL
+senti_combined$sentence <- NULL
+senti_combined$element_id <- NULL
+senti_combined$element_id2 <- NULL
+senti_combined$name <- NULL
+senti_combined$word_count <- NULL
+senti_combined$sd <- NULL
 
 summary(senti_combined)
 
-senti_combined$year <- as.character(senti_combined$year)
-senti_combined$year <- as.numeric(senti_combined$year)
+names(senti_combined)
+
+senti_combined2 <- melt(senti_combined, id.vars = c("speech_date", "party_group",  "debate_type"))
+
+summary(senti_combined2)
+
+senti_combined2$debate_type <- as.factor(senti_combined2$debate_type)
+
+senti_combined3 <- aggregate(value~speech_date + party_group + debate_type + variable, data=senti_combined2, FUN=mean)
+
+senti_combined3$year <- lubridate::year(senti_combined3$speech_date)
+
+class(senti_combined3)
+
+class(senti_combined3$speech_date)
 
 
-names(senti_combined)[6] <- "sentiment"
+Baldwin2 <- subset(senti_combined3, speech_date >= "1935-11-14" & speech_date <= "1937-05-28")
+Chamberlain1 <- subset(senti_combined3, speech_date >= "1937-05-28" & speech_date <= "1939-09-03")
+Chamberlain2 <- subset(senti_combined3, speech_date >= "1939-09-03" & speech_date <= "1940-05-10")
+Churchill1 <- subset(senti_combined3, speech_date >= "1940-05-10" & speech_date <= "1945-05-22")
+Churchill2 <- subset(senti_combined3, speech_date >= "1945-05-23" & speech_date <= "1945-06-25")
+Atlee1 <- subset(senti_combined3, speech_date >= "1945-06-26" & speech_date <= "1950-02-22")
+Atlee2 <- subset(senti_combined3, speech_date >= "1950-02-23" & speech_date <= "1951-10-26")
+Churchill3 <- subset(senti_combined3, speech_date >= "1951-10-26" & speech_date <= "1955-04-05")
+Eden1 <- subset(senti_combined3, speech_date >= "1955-04-06" & speech_date <= "1955-05-28")
+Eden2 <- subset(senti_combined3, speech_date >= "1955-05-29" & speech_date <= "1957-01-10")
+Macmillan1 <- subset(senti_combined3, speech_date >= "1957-01-10" & speech_date <= "1959-10-08")
+Macmillan2 <- subset(senti_combined3, speech_date >= "1959-10-09" & speech_date <= "1963-10-18")
+DouglasHome <- subset(senti_combined3, speech_date >= "1963-10-19" & speech_date <= "1964-10-15")
+Wilson1 <- subset(senti_combined3, speech_date >= "1964-10-16" & speech_date <= "1966-03-31")
+Wilson2 <- subset(senti_combined3, speech_date >= "1966-04-01" & speech_date <= "1970-06-18")
+Heath <- subset(senti_combined3, speech_date >= "1970-06-19" & speech_date <= "1974-03-03")
+Wilson3 <- subset(senti_combined3, speech_date >= "1974-03-04" & speech_date <= "1976-04-04")
+Callaghan <- subset(senti_combined3, speech_date >= "1976-04-05" & speech_date <= "1979-05-03")
+Thatcher1 <- subset(senti_combined3, speech_date >= "1979-05-04" & speech_date <= "1983-06-08")
+Thatcher2 <- subset(senti_combined3, speech_date >= "1983-06-09" & speech_date <= "1987-06-10")
+Thatcher3 <- subset(senti_combined3, speech_date >= "1987-06-11" & speech_date <= "1990-11-27")
+Major1 <- subset(senti_combined3, speech_date >= "1990-11-28" & speech_date <= "1992-04-09")
+Major2 <- subset(senti_combined3, speech_date >= "1992-04-10" & speech_date <= "1997-05-01")
+Blair1 <- subset(senti_combined3, speech_date >= "1997-05-02" & speech_date <= "2001-06-06")
+Blair2 <- subset(senti_combined3, speech_date >= "2001-06-07"& speech_date <= "2005-05-04")
+Blair3 <- subset(senti_combined3, speech_date >= "2005-05-05"& speech_date <= "2007-06-26")
+Brown <- subset(senti_combined3, speech_date >= "2007-06-27" & speech_date <= "2010-05-10")
+Cameron1 <- subset(senti_combined3, speech_date >= "2010-05-11" & speech_date <= "2015-05-07")
+Cameron2 <- subset(senti_combined3, speech_date >= "2015-05-08" & speech_date <= "2016-07-12")
+May <- subset(senti_combined3, speech_date >= "2016-07-13" & speech_date <= "2016-12-31")
 
-#senti_combined <- subset(senti_combined, is.na(party_group)==FALSE)
-
-
-Baldwin2 <- subset(senti_combined, date >= "1935-11-14" & date <= "1937-05-28")
-Chamberlain1 <- subset(senti_combined, date >= "1937-05-28" & date <= "1939-09-03")
-Chamberlain2 <- subset(senti_combined, date >= "1939-09-03" & date <= "1940-05-10")
-Churchill1 <- subset(senti_combined, date >= "1940-05-10" & date <= "1945-05-22")
-Churchill2 <- subset(senti_combined, date >= "1945-05-23" & date <= "1945-06-25")
-Atlee1 <- subset(senti_combined, date >= "1945-06-26" & date <= "1950-02-22")
-Atlee2 <- subset(senti_combined, date >= "1950-02-23" & date <= "1951-10-26")
-Churchill3 <- subset(senti_combined, date >= "1951-10-26" & date <= "1955-04-05")
-Eden1 <- subset(senti_combined, date >= "1955-04-06" & date <= "1955-05-28")
-Eden2 <- subset(senti_combined, date >= "1955-05-29" & date <= "1957-01-10")
-Macmillan1 <- subset(senti_combined, date >= "1957-01-10" & date <= "1959-10-08")
-Macmillan2 <- subset(senti_combined, date >= "1959-10-09" & date <= "1963-10-18")
-DouglasHome <- subset(senti_combined, date >= "1963-10-19" & date <= "1964-10-15")
-Wilson1 <- subset(senti_combined, date >= "1964-10-16" & date <= "1966-03-31")
-Wilson2 <- subset(senti_combined, date >= "1966-04-01" & date <= "1970-06-18")
-Heath <- subset(senti_combined, date >= "1970-06-19" & date <= "1974-03-03")
-Wilson3 <- subset(senti_combined, date >= "1974-03-04" & date <= "1976-04-04")
-Callaghan <- subset(senti_combined, date >= "1976-04-05" & date <= "1979-05-03")
-Thatcher1 <- subset(senti_combined, date >= "1979-05-04" & date <= "1983-06-08")
-Thatcher2 <- subset(senti_combined, date >= "1983-06-09" & date <= "1987-06-10")
-Thatcher3 <- subset(senti_combined, date >= "1987-06-11" & date <= "1990-11-27")
-Major1 <- subset(senti_combined, date >= "1990-11-28" & date <= "1992-04-09")
-Major2 <- subset(senti_combined, date >= "1992-04-10" & date <= "1997-05-01")
-Blair1 <- subset(senti_combined, date >= "1997-05-02" & date <= "2001-06-06")
-Blair2 <- subset(senti_combined, date >= "2001-06-07"& date <= "2005-05-04")
-Blair3 <- subset(senti_combined, date >= "2005-05-05"& date <= "2007-06-26")
-Brown <- subset(senti_combined, date >= "2007-06-27" & date <= "2010-05-10")
-Cameron1 <- subset(senti_combined, date >= "2010-05-11" & date <= "2015-05-07")
-Cameron2 <- subset(senti_combined, date >= "2015-05-08" & date <= "2016-07-12")
-May <- subset(senti_combined, date >= "2016-07-13" & date <= "2016-12-31")
-
-
-
-summary(allothers)
-
-allothers$ministry <- "Pre-Blair"
-allothers$government <- "Pre-Blair"
 
   Baldwin2$ministry <- "Baldwin2"
-  Baldwin2$government <- 
+  Baldwin2$government <- ifelse(Baldwin2$party_group == "Conservative",
+                                "Government", "Opposition")
   
   Chamberlain1$ministry <- "Chamberlain1"
-  Chamberlain1$government <- 
+  Chamberlain1$government <- ifelse(Chamberlain1$party_group == "Conservative",
+                                    "Government", "Opposition")
   
   Chamberlain2$ministry <- "Chamberlain2"
-  Chamberlain2$government <- 
+  Chamberlain2$government <- ifelse(Chamberlain2$party_group == "Conservative",
+                                    "Government", "Opposition")
   
   Churchill1$ministry <- "Churchill1"
   Churchill1$government <- ifelse(Churchill1$party_group == "Conservative",
@@ -185,52 +203,90 @@ May$government <- ifelse(May$party_group == "Conservative",
 
 
 
-
-test <- subset(Blair1, government==TRUE)
-summary(test)
-
-
-
 senti_combined <- rbind(Blair1, Blair2, Blair3, Brown, Cameron1, Cameron2,May, 
                         Baldwin2, Chamberlain1, Chamberlain2, Churchill1, Churchill2,
                         Atlee1, Atlee2, Churchill3, Eden1, Eden2, Macmillan1, Macmillan2, 
                         DouglasHome, Wilson1, Wilson2, Heath, Wilson3, Callaghan, 
                         Thatcher1, Thatcher2, Thatcher3, Major1, Major2)
 
+rm(Blair1, Blair2, Blair3, Brown, Cameron1, Cameron2, May, Baldwin2,
+   Chamberlain1, Chamberlain2, Churchill1, Churchill2,Atlee1, Atlee2,
+   Churchill3, Eden1, Eden2, Macmillan1, Macmillan2, DouglasHome,
+   Wilson1, Wilson2, Heath, Wilson3, Callaghan,Thatcher1, Thatcher2,
+   Thatcher3, Major1, Major2, senti_combined2, senti_combined3)
 
-class(senti_combined$year)
-
-summary(senti_combined)
+names(senti_combined)[5] <- "sentiment"
+names(senti_combined)[4] <- "senti_type"
 
 senti_combined$ministry <- as.factor(senti_combined$ministry)
 
+senti_combined$government <- as.factor(senti_combined$government)
 
+all_average <- tapply(senti_combined$sentiment, list(senti_combined$debate_type, 
+                                                 senti_combined$year, 
+                                                 senti_combined$senti_type), mean)
 
-
-test <- subset(senti_combined, is.na(party_group)==FALSE)
-
-all_average <- tapply(test$sentiment, list(test$type, test$year), mean)
+summary(all_average)
 
 all_average <- melt(all_average,
-                    variable.name = c("type","year"), 
+                    variable.name = c("debate_type","year", "senti_type"),
                     value.names = "sentiment", 
                     measure.vars = "sentiment")
 
-party_average <- tapply(test$sentiment, list(test$type, test$party_group, test$year), mean)
+summary(all_average)
+names(all_average)[1] <- "debate_type"
+names(all_average)[2] <- "year"
+names(all_average)[3] <- "senti_type"
+names(all_average)[4] <- "sentiment"
+summary(all_average)
+
+
+party_average <- tapply(senti_combined$sentiment, list(senti_combined$debate_type, 
+                                                   senti_combined$year, 
+                                                   senti_combined$party_group,
+                                                   senti_combined$senti_type), mean)
+
+summary(party_average)
 
 party_average <- melt(party_average,
-                      variable.name = c("type","party_group","year"), 
+                      variable.name = c("type","party_group","year", "senti_type"), 
                       value.names = "sentiment", 
                       measure.vars = "sentiment")
 
-government_average <- tapply(test$sentiment, list(test$type, test$government, test$year), mean)
+summary(party_average)
+
+names(party_average)[1] <- "debate_type"
+names(party_average)[2] <- "year"
+names(party_average)[3] <- "party_group"
+names(party_average)[4] <- "senti_type"
+names(party_average)[5] <- "sentiment"
+
+summary(party_average)
+
+
+government_average <- tapply(senti_combined$sentiment, list(senti_combined$debate_type,
+                                                            senti_combined$year,
+                                                            senti_combined$government,
+                                                            senti_combined$senti_type), mean)
+
+summary(government_average)
 
 government_average <- melt(government_average,
-                      variable.name = c("type","government","year"), 
+                      variable.name = c("debate_type","government","year", "senti_type"), 
                       value.names = "sentiment", 
                       measure.vars = "sentiment")
 
 summary(government_average)
+
+names(government_average)[1] <- "debate_type"
+names(government_average)[2] <- "year"
+names(government_average)[3] <- "government"
+names(government_average)[4] <- "senti_type"
+names(government_average)[5] <- "sentiment"
+
+summary(government_average)
+
+summary(senti_combined)
 
 write_rds(party_average, "./data/party_average.rds")
 
@@ -238,93 +294,4 @@ write_rds(all_average, "./data/all_average.rds")
 
 write_rds(government_average, "./data/government_average.rds")
 
-
-
-
-library(zoo)
-library(data.table)
-
-senti_combined <- as.zoo(senti_combined)
-
-senti_combined <- as.data.frame(senti_combined)
-
-senti_combined$date <- as.Date(senti_combined$date)
-
-senti_combined$year <- year(senti_combined$date)
-
-senti_combined$year <- as.factor(senti_combined$year)
-
-senti_combined$sentiment <- as.character(senti_combined$sentiment)
-
-senti_combined$sentiment <- as.numeric(senti_combined$sentiment)
-
-summary(senti_combined)
-
-senti_combined$year <- as.character(senti_combined$year)
-
-senti_combined$year <- as.numeric(senti_combined$year)
-
-saveRDS(senti_combined, "./data/senti_combined.rds")
-
-
-
-
-summary(senti_combined3)
-
-p6 <- ggplot(senti_combined, aes(x=date, group = type, col = type))
-
-p6 + geom_smooth(aes(y=sentiment, group = interaction(type,government),
-                     linetype = government, col=type), size=1.5, formula=y ~ log(x)) +
-  scale_x_date(date_breaks = "5 year",date_labels = "%Y", name = "Date") + 
-  scale_y_continuous(name="Sentiment Score") + 
-  #scale_linetype_manual(values=govt_line) +
-  #scale_colour_manual(values=senti_colour) + 
-  theme(axis.text.x = element_text(angle = 30, hjust = 1), 
-        text = element_text(size=14),
-        legend.position="bottom", legend.background = element_rect())
-
-summary(senti_combined2$type)
-
-qplot(date, sentiment, data=senti_combined, geom='smooth', col=party_group) +  
-  geom_smooth(aes(group = interaction(type,party_group)))
-
-
-output$sentiplot<-renderPlot({
-  
-  senti_set <- sentiDataSet()
-  
-  p6 <- ggplot(senti_combined, aes(x=date,y=sentiment, col = party_group))
-  
-  p6 + geom_smooth(aes(group = interaction(type,party_group), linetype = type, col=party_group), size=1.5, formula=y ~ log(x)) +
-    scale_x_date(date_breaks = "5 year",date_labels = "%Y", name = "Date") + 
-    scale_y_continuous(name="Sentiment Score") + 
-    scale_linetype_manual(values=senti_line) +
-    scale_colour_manual(values=senti_colour) + 
-    theme(axis.text.x = element_text(angle = 30, hjust = 1), 
-          text = element_text(size=14),
-          legend.position="bottom", legend.background = element_rect())
-  
-})
-
-
-
-
-
-
-
-
-
-
-
-senti_combined <- subset(senti_combined, is.na(party_group)==FALSE)
-
-p6 <- ggplot(senti_combined, aes(x=speech_date, group = party_group, col = party_group))
-
-p6 + geom_smooth(aes(y=sentiment, linetype = party_group, col=party_group), size=1.5, formula=y ~ log(x)) +
-  scale_x_date(date_breaks = "5 year",date_labels = "%Y", name = "Date") + 
-  scale_y_continuous(name="Sentiment Score") + 
-  theme(axis.text.x = element_text(angle = 30, hjust = 1), 
-        legend.position="bottom", legend.background = element_rect())
-
-
-
+write_rds(senti_combined, "./data/senti_combined.rds")
