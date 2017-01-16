@@ -100,18 +100,18 @@ line_styles <- c("Disabled Person"	=	"solid",
 senti_line <- c("All Debate" = "dotted",
                 "Disability" = "solid")
 
-senti_colour <- c("All Debate" = "red",
-                  "Disability" = "purple")
+senti_colour <- c("All Debate" = "#006332",
+                  "Disability" = "#250858")
 
 govt_line <- c("Government" = "solid",
                "Opposition" = "dotted")
 
-govt_colour <- c("Government" = "red",
-               "Opposition" = "purple")
+govt_colour <- c("Government" = "#006332",
+               "Opposition" = "#250858")
 
-gov_type_colour <- c("All Debate.Government" = "#c65999",
+gov_type_colour <- c("All Debate.Government" = "#006332",
                     "All Debate.Opposition" = "#7aa456",
-                    "Disability.Government" = "#777acd",
+                    "Disability.Government" = "#006332",
                     "Disability.Opposition" = "#c96d44")
 
 party_colour <- c("Liberal Democrat" = "#FDBB30",
@@ -248,8 +248,8 @@ I have three created three sets of interactive charts. The [first set](#all_v_di
 shinyApp(
 
 ui <- fluidPage(
+  fluidRow(
   
-  column(width=9,
                      
                          conditionalPanel(
                            condition = "input.toggle % 3 == 0",
@@ -265,19 +265,20 @@ ui <- fluidPage(
                            condition = "input.toggle % 3 == 1",
                            h5("Sentiment Bar Chart"),
                            plotOutput("sentibar")
-                         ),
-         actionButton("toggle", "Switch Chart Type")
+                         )
+         
               ),
-              
-              column(width=3,
+       fluidRow(
+         column(width = 4,
 
                        checkboxGroupInput(
                          "debate_type", 
                          "Debate Type to Show",
                          choices=c("All Debate", "Disability"),
                          selected =c("All Debate", "Disability")
-                       ),
-                     
+                       )
+         ),
+         column(width = 4,
                      radioButtons(
                        inputId="senti_options",
                        label="Select Sentiment Library:",
@@ -288,18 +289,19 @@ ui <- fluidPage(
                          "Hu Liu"="hu_sentiment",
                          "Sentiword"="sentiword_sentiment"
                        ),
-                       selected="afinn_sentiment"),
+                       selected="afinn_sentiment")
+                ),column(width = 4,
                      
                        sliderInput("senti_year", "Year", 1936, 2016,
-                                   value = c(1936, 2016), sep="")
+                                   value = c(1936, 2016), sep=""),
+                       actionButton("toggle", "Switch Chart Type")
              
-                     )
-  
-  
+                        )
+            )
+
 ), 
 
 server <- function(input, output, session) {
-  
   
   sentiDataSet <- reactive({
             
@@ -310,7 +312,6 @@ server <- function(input, output, session) {
         
     })
 
-
  sentiDataBar <- reactive({
     
       senti_data <- all_average[all_average$year >= input$senti_year[1]
@@ -319,15 +320,15 @@ server <- function(input, output, session) {
                                     & all_average$senti_type == input$senti_options,]
   
   })
-  
-  
+
   output$sentiplot <- renderPlot({
       
     senti_set <- sentiDataSet()
     
     p6 <- ggplot(senti_set, aes(x=speech_date, group = debate_type, col = debate_type))
     
-    p6 + geom_smooth(aes(y=sentiment, linetype = debate_type, col=debate_type), size=1.5, formula=y ~ log(x)) +
+    p6 + geom_smooth(aes(y=sentiment, linetype = debate_type, 
+                         col=debate_type), size=1.5, formula=y ~ log(x)) +
       scale_x_date(date_breaks = "5 year",date_labels = "%Y", name = "Date") + 
       scale_y_continuous(name="Sentiment Score") + 
       scale_linetype_manual(values=senti_line) +
@@ -346,7 +347,7 @@ server <- function(input, output, session) {
     
     p8 <- ggplot(senti_bar_data, aes(x=year, y=sentiment, group = debate_type, col = debate_type, fill=debate_type, width=.75))
     
-    p8 + geom_bar(stat = "identity", position = "dodge") +
+    p8 + geom_bar(stat = "identity", position = position_dodge(width=0.5)) +
       scale_x_discrete(name="Year", breaks=seq(1935,2020, by=5)) + 
       scale_y_continuous(name="Sentiment Score") + 
       scale_colour_manual(values=senti_colour) + 
@@ -393,9 +394,7 @@ These charts show the scores for all debate and disability debate, seperated bet
 shinyApp(
 
 ui <- fluidPage(
-  
-  column(width=9,
-                         conditionalPanel(
+  fluidRow(  conditionalPanel(
                            condition = "input.toggle % 3 == 0",
                            h4("Sentiment Line Chart"),
                            plotOutput("senti_gov")
@@ -409,13 +408,13 @@ ui <- fluidPage(
                            condition = "input.toggle % 3 == 1",
                            h4("Sentiment Bar Chart"),
                            plotOutput("senti_gov_bar")
-                         ),
-                    actionButton("toggle", "Switch Chart Type")
+                         )
+         
               ),
-              
-              column(width=3,
+       fluidRow(
+         column(width = 4,
 
-                       checkboxGroupInput(
+                  checkboxGroupInput(
                          "debate_type", 
                          "Debate Type to Show",
                          choices=c("All Debate", "Disability"),
@@ -432,9 +431,10 @@ ui <- fluidPage(
                        selected=c(
                          "Government",
                          "Opposition"
-                       )),
-                     
-                     radioButtons(
+                       ))
+         ),
+         column(width = 4,
+                    radioButtons(
                        inputId="senti_options",
                        label="Select Sentiment Library:",
                        choices=c(
@@ -444,10 +444,17 @@ ui <- fluidPage(
                          "Hu Liu"="hu_sentiment",
                          "Sentiword"="sentiword_sentiment"
                        ),
-                       selected="afinn_sentiment"),
-                 
-                       sliderInput("senti_year2", "Year", 2000, 2016,
-                                   value = c(2000, 2016), sep=""))
+                       selected="afinn_sentiment")
+          
+                ),
+         column(width = 4,
+                     
+                      sliderInput("senti_year2", "Year", 2000, 2016,
+                                   value = c(2000, 2016), sep=""),
+                       actionButton("toggle", "Switch Chart Type")
+             
+                        )
+            )
 
 ), 
 
@@ -455,17 +462,14 @@ server <- function(input, output, session) {
 
   sentiDataGov <- reactive({
     
-            senti_data <- senti_combined[senti_combined$year >= input$senti_year2[1] 
-                                         & senti_combined$year <= input$senti_year2[2]
-                                         & senti_combined$senti_type == input$senti_options
-                                         & senti_combined$government %in% input$gov_options
-                                         & senti_combined$debate_type %in% input$debate_type,]
-
+      senti_data <- senti_combined[senti_combined$year >= input$senti_year2[1] 
+                                  & senti_combined$year <= input$senti_year2[2]
+                                  & senti_combined$senti_type == input$senti_options
+                                  & senti_combined$government %in% input$gov_options
+                                  & senti_combined$debate_type %in% input$debate_type,]
 
 })
 
-    
- 
    sentiDataBar <- reactive({
     
       senti_data_bar <- government_average[government_average$year >= input$senti_year2[1]
@@ -483,9 +487,9 @@ server <- function(input, output, session) {
        
     p6 <- ggplot(senti_set, aes(x=speech_date))
     
-
-p6 + geom_smooth(aes(y=sentiment, group = interaction(debate_type, government),
-                     linetype = debate_type, col = government), size=1.5, formula=y ~ log(x)) +
+  p6 + geom_smooth(aes(y=sentiment, group = interaction(debate_type, government),
+                       linetype = debate_type, col = government),
+                       size=1.5, formula=y ~ log(x)) +
   scale_x_date(date_breaks = "2 year",date_labels = "%Y", name = "Date") + 
   scale_y_continuous(name="Sentiment Score") + 
   scale_linetype_manual(values=senti_line) +
@@ -503,7 +507,8 @@ p6 + geom_smooth(aes(y=sentiment, group = interaction(debate_type, government),
     senti_bar_data$year <- as.factor(senti_bar_data$year)
     
 
-p8 <- ggplot(senti_bar_data, aes(x=year, y=sentiment, group = interaction(debate_type, government),
+p8 <- ggplot(senti_bar_data, aes(x=year, y=sentiment,
+                                 group = interaction(debate_type, government),
                                  fill = interaction(debate_type, government), width=.75))
 
 p8 + geom_bar(stat = "identity", position = "dodge") +
@@ -515,8 +520,6 @@ p8 + geom_bar(stat = "identity", position = "dodge") +
         legend.position="bottom", legend.background = element_rect()) + 
   guides(fill=guide_legend(title=NULL))
 
-
-    
   })
  
   output$senti_gov_box <- renderPlot({
