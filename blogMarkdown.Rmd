@@ -6,6 +6,7 @@ output:
   html_document:
     css: style.css
     keep_md: true
+bibliography: ExportedItems.bib
 runtime: shiny
 ---
 
@@ -720,11 +721,11 @@ options = list(height = 600)
 
 There are three <!-- There are almost certainly more --> options for sentiment analysis:
 
-1. The [http://www2.imm.dtu.dk/pubdb/views/publication_details.php?id=6010](AFINN) library by Finn Årup Nielsen, labelled 'AFINN'. AFINN assigns a score from -5 (most negative) to +5 (most positive) to the words used in association with the different disability terms and phrases searched for in the Hansard.
+1. The [http://www2.imm.dtu.dk/pubdb/views/publication_details.php?id=6010](AFINN) library by Finn Årup Nielsen, labelled 'AFINN'. AFINN assigns a score from -5 (most negative) to +5 (most positive) to the words used in association with the different disability terms and phrases searched for in the Hansard. [-@nielsen2011]
 
 2. The [https://www.cs.uic.edu/~liub/FBS/sentiment-analysis.html](Opinion Mining, Sentiment Analysis), and Opinion Spam Detection</a> dataset by Bing Liu, Minqing Hu and Junsheng Cheng, labelled 'Bing'. Bing identifies a word as either positive or negative.
 
-3. The [http://saifmohammad.com/WebPages/lexicons.html](NRC Word-Emotion Association Lexicon), library by Saif M. Mohammad, labelled 'NRC'. NRC assigns one of positive, negative, anger, anticipation, disgust, fear, joy, sadness, surprise and trust.
+3. The [http://saifmohammad.com/WebPages/lexicons.html](NRC Word-Emotion Association Lexicon), library by Saif M. Mohammad, labelled 'NRC'. NRC identifies words as either positive or negative.
 
 4. The Hu & Liu dataset.
 
@@ -796,11 +797,6 @@ The ParlParse service does not record the party affiliation of MPs, or an ID num
 
 
 
-## References 
-<!--ADD REFERENCES -->
-Nielsen, Finn Årup. 2011. *AFINN*. Lyngby, Denmark: Informatics and Mathematical Modelling, Technical University of Denmark.
-
-
 ### Notes
 
 Source code is available on [Github](https://github.com/EvanOdell/hansardBlog). For assistance, questions or comments please contact Evan Odell via [email](mailto:evan.odell@disabilityrightsuk.org) or  [Twitter](https://twitter.com/evanodell), or raise an issue on Github.
@@ -810,3 +806,5 @@ This app is licensed under an [MIT License](https://github.com/EvanOdell/hansard
 The data used in this app was retrieved from the [ParlParse](https://www.theyworkforyou.com/pwdata/scrapedxml/) service operated by [MySociety](https://www.mysociety.org/). <!-- link to dataset -->
 
 This app was constructed using [`shiny`](http://shiny.rstudio.com/). Plots are produced with `ggplot2` and `scales`. Sentiment analysis was conducted using the [`sentimentr`](https://cran.r-project.org/package=sentimentr), [`syuzhet`](https://cran.r-project.org/package=syuzhet), [`lexicon`](https://cran.r-project.org/package=lexicon) and [`RSentiment`](https://cran.r-project.org/package=RSentiment) packages.
+
+# References
