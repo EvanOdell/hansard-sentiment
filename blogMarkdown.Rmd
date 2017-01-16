@@ -17,25 +17,24 @@ runtime: shiny
 
 
 
-## Disability discussion in parliament
+# Disability discussion in parliament
 How do politicians discuss disability issues? Has this changed over time? Are there any relationships between how disability issues are debated in Parliament and the policy decisions made by governments? In an attempt to answer these questions I downloaded everything that has ever been said in the House of Commons from 1936 to the present day.
 
 
 
-## Frequency of mentions of disability-relevant phrases
+# Frequency of mentions of disability-relevant phrases
 <a name="freq"></a>
 I grouped 23 different disability relevant phrases into 15 groups. I selected phrases that are likely to be only used in relation to disability issues. This means that words such as 'blind' or 'deaf' cannot be used, as they are frequently used in non-disability discussion; e.g. 'the member opposite is deaf to the concerns of ordinary people'. See the complete list of phrases and their groupings [below](#word_list)
 
 The number of uses of each group of phrases were counted for each day of debate in parliament, and averaged over a rolling calendar year.
 
-
-
 ```{r setup, include=FALSE}
 
-library(ggplot2)
-library(scales)
 library(shiny)
 library(shinyjs)
+library(ggplot2)
+library(scales)
+library(grid)
 
 disability_phrase_groups <- readRDS("./data/disability_phrase_groups.rds")
 
@@ -65,6 +64,11 @@ base_breaks <- function(n = 10){
 fmt_dcimals <- function(decimals=0){
   function(x) as.character(round(x,decimals))
 }
+
+```
+
+
+```{r, include=FALSE}
 
 line_colours <- c("Disabled Person"	=	"#006109",
                   "Disabled Men"	=	"#8a2093",
@@ -111,9 +115,9 @@ govt_colour <- c("Government" = "#006332",
                "Opposition" = "#250858")
 
 gov_type_colour <- c("All Debate.Government" = "#006332",
-                    "All Debate.Opposition" = "#7aa456",
-                    "Disability.Government" = "#006332",
-                    "Disability.Opposition" = "#c96d44")
+                    "All Debate.Opposition" = "#99C0AD",
+                    "Disability.Government" = "#250858",
+                    "Disability.Opposition" = "#A79CBC")
 
 party_colour <- c("Liberal Democrat" = "#FDBB30",
                   "Conservative" = "#0087DC",
@@ -130,8 +134,8 @@ party_type_colour <- c("All Debate.Conservative" = "#0087DC",
                        "Disability.Other" = "#bebebe")
 
 
-
 ```
+
 
 
 ### Frequency Chart
@@ -218,19 +222,18 @@ There are several patterns in the data that I would like to draw your attention 
 <blockquote class="twitter-tweet" data-lang="en"><p lang="en" dir="ltr">The Social Model of Disability says society disables us, not our bodies. So putting ‘disabled’ first before ‘people’ highlights this <a href="https://twitter.com/hashtag/UKDHM?src=hash">#UKDHM</a></p>&mdash; C. Farquharson MBE (@clentonF) <a href="https://twitter.com/clentonF/status/803301978633859073">November 28, 2016</a></blockquote>
 <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
 
-Another notable trend is the increase in the use of 'amputee' in the years following armed conflicts. This is unsurprising, given the high profile of injured soldiers and the often traumatic nature of limb loss in armed conflict, but they make up a very small proportion of amputatees in the UK. Between October 2001 and March 2015 [234 UK service personnel had a limb amputated](https://www.gov.uk/government/uploads/system/uploads/attachment_data/file/449400/AnnexA_20150730_DAY-RELEASE_Quarterly_Afghanistan_Iraq_Amputation_Statistics.pdf), while according to Diabetes UK there are [135 amputations a week in England alone](https://www.diabetes.org.uk/about_us/news/more-than-135-diabetes-amputations-every-week/) as a result of diabetes complications.
+Another notable trend is the increase in the use of 'amputee' in the years following armed conflicts. This is unsurprising, given the high profile of injured soldiers and the often traumatic nature of limb loss in armed conflict, but they make up a very small proportion of amputatees in the UK. Between October 2001 and March 2015 [234 UK service personnel had a limb amputated](https://www.gov.uk/government/uploads/system/uploads/attachment_data/file/449400/AnnexA_20150730_DAY-RELEASE_Quarterly_Afghanistan_Iraq_Amputation_Statistics.pdf), while according to Diabetes UK there are [135 amputations a week in England alone](https://www.diabetes.org.uk/about_us/news/more-than-135-diabetes-amputations-every-week/) as a result of diabetes complications.[-@ahmad2014] found a rate of 26.3 amputations per 100,000 people aged 50–84 years over a six year period in England.
 
 
 There are also very clear and obvious spikes in the use of 'paralympics' every four years.
 
 
 
-## Sentiment Analysis
+# Sentiment Analysis
 <a name="senti"></a>
 In addition to the frequency of different words used in the Hansard, I wanted to see if there are any changes in the sentiment of disability discussion. See [below](#senti_exp) for detailed information on how this chart was created.
 
-
-You can toggle between three different sentiment analysis charts. The default chart is a line chart with a smoothed line of the average sentiment score trend. The second is a bar chart showing the average sentiment score each calendar year, and the third is a box plot showing the distribution of sentiment scores in each year.
+You can toggle between three different sentiment analysis chart styles. The default chart is a line chart with a smoothed line of the average sentiment score trend. The second is a bar chart showing the average sentiment score each calendar year, and the third is a box plot showing the distribution of sentiment scores in each year.
 
 The red 'All Debate' group is the sentiment score for a random sample of 1% of all debate in Parliament, and the purle 'Disability' group is the sentiment score for all debates that involve any of the disability-relevant terms and phrases.
 
@@ -250,8 +253,6 @@ shinyApp(
 
 ui <- fluidPage(
   fluidRow(
-  
-                     
                          conditionalPanel(
                            condition = "input.toggle % 3 == 0",
                            h5("Sentiment Line Chart"),
@@ -284,13 +285,13 @@ ui <- fluidPage(
                        inputId="senti_options",
                        label="Select Sentiment Library:",
                        choices=c(
+                         "Sentiword"="sentiword_sentiment",
                          "AFINN"="afinn_sentiment",
                          "Bing"="bing_sentiment",
                          "NRC"="nrc_sentiment",
-                         "Hu Liu"="hu_sentiment",
-                         "Sentiword"="sentiword_sentiment"
+                         "Hu Liu"="hu_sentiment"
                        ),
-                       selected="afinn_sentiment")
+                       selected="sentiword_sentiment")
                 ),column(width = 4,
                      
                        sliderInput("senti_year", "Year", 1936, 2016,
@@ -336,7 +337,8 @@ server <- function(input, output, session) {
       scale_colour_manual(values=senti_colour) +
       theme(axis.text.x = element_text(angle = 30, hjust = 1), 
             text = element_text(size=14),
-            legend.position="bottom", legend.background = element_rect())
+            legend.position="bottom", legend.background = element_rect()) +
+  guides(fill=guide_legend(title=NULL),col=guide_legend(title=NULL))
     
   })
   
@@ -349,14 +351,15 @@ server <- function(input, output, session) {
     p8 <- ggplot(senti_bar_data, aes(x=year, y=sentiment, group = debate_type, col = debate_type, fill=debate_type, width=.75))
     
     p8 + geom_bar(stat = "identity", position = position_dodge(width=0.5)) +
-      scale_x_discrete(name="Year", breaks=seq(1935,2020, by=5)) + 
+      scale_x_discrete(name="Year", breaks=seq(1935,2020, by=5)) +
+      facet_grid(.~year, switch = "x", scales = "free_x", space = "free_x") +
       scale_y_continuous(name="Sentiment Score") + 
       scale_colour_manual(values=senti_colour) + 
       scale_fill_manual(values=senti_colour) + 
       theme(axis.text.x = element_text(angle = 30, hjust = 1), 
             text = element_text(size=14),
-            legend.position="bottom", legend.background = element_rect())+ 
-  guides(fill=guide_legend(title=NULL))
+            legend.position="bottom", legend.background = element_rect()) + 
+      guides(col=guide_legend(title=NULL))
     
   })
  
@@ -375,7 +378,8 @@ server <- function(input, output, session) {
       scale_colour_manual(values=senti_colour) + 
       theme(axis.text.x = element_text(angle = 30, hjust = 1), 
             text = element_text(size=14),
-            legend.position="bottom", legend.background = element_rect())
+            legend.position="bottom", legend.background = element_rect()) +
+      guides(col=guide_legend(title=NULL))
     
   })
     
@@ -439,13 +443,13 @@ ui <- fluidPage(
                        inputId="senti_options",
                        label="Select Sentiment Library:",
                        choices=c(
+                         "Sentiword"="sentiword_sentiment",
                          "AFINN"="afinn_sentiment",
                          "Bing"="bing_sentiment",
                          "NRC"="nrc_sentiment",
-                         "Hu Liu"="hu_sentiment",
-                         "Sentiword"="sentiword_sentiment"
+                         "Hu Liu"="hu_sentiment"
                        ),
-                       selected="afinn_sentiment")
+                       selected="sentiword_sentiment")
           
                 ),
          column(width = 4,
@@ -497,7 +501,8 @@ server <- function(input, output, session) {
   scale_colour_manual(values=govt_colour) +
   theme(axis.text.x = element_text(angle = 30, hjust = 1), 
         text = element_text(size=14),
-        legend.position="bottom", legend.background = element_rect())
+        legend.position="bottom", legend.background = element_rect()) +
+  guides(fill=guide_legend(title=NULL),linetype=guide_legend(title=NULL))
     
   })
   
@@ -515,7 +520,7 @@ p8 <- ggplot(senti_bar_data, aes(x=year, y=sentiment,
 p8 + geom_bar(stat = "identity", position = "dodge") +
   scale_x_discrete(name="Year", breaks=seq(2000,2020, by=2)) + 
   scale_y_continuous(name="Sentiment Score") + 
-  scale_colour_manual(values=gov_type_colour) + 
+  scale_fill_manual(values=gov_type_colour) + 
   theme(axis.text.x = element_text(angle = 30, hjust = 1), 
         text = element_text(size=14),
         legend.position="bottom", legend.background = element_rect()) + 
@@ -538,13 +543,14 @@ p8 + geom_bar(stat = "identity", position = "dodge") +
       scale_colour_manual(values=senti_colour) + 
       theme(axis.text.x = element_text(angle = 30, hjust = 1), 
             text = element_text(size=14),
-            legend.position="bottom", legend.background = element_rect())
+            legend.position="bottom", legend.background = element_rect()) +
+      guides(fill=guide_legend(title=NULL),col=guide_legend(title=NULL))
     
   })
  
  
 },
-options = list(height = 600)
+options = list(height = 650)
 )
 
 ```
@@ -558,12 +564,10 @@ These charts show the scores for all debate and disability debate, seperated bet
 
 shinyApp(
 
-ui <- fluidPage(
   
-  column(width=9,
-                     
-                     
-                         conditionalPanel(
+  ui <- fluidPage(
+  fluidRow( 
+                      conditionalPanel(
                            condition = "input.toggle % 3 == 0",
                            h4("Sentiment Line Chart"),
                            plotOutput("senti_party")
@@ -577,13 +581,11 @@ ui <- fluidPage(
                            condition = "input.toggle % 3 == 1",
                            h4("Sentiment Bar Chart"),
                            plotOutput("senti_party_bar")
-                         ),
-         actionButton("toggle", "Switch Chart Type")
+                         )
               ),
-              
-              column(width=3,
-
-                       checkboxGroupInput(
+       fluidRow(
+         column(width = 4,
+                    checkboxGroupInput(
                          "debate_type", 
                          "Debate Type to Show",
                          choices=c("All Debate", "Disability"),
@@ -602,23 +604,29 @@ ui <- fluidPage(
                          "Conservative",
                          "Labour",
                          "Liberal Democrat")
-                       ),
-                     
-                     radioButtons(
+                       )
+         ),
+         column(width = 4,
+              radioButtons(
                        inputId="senti_options",
                        label="Select Sentiment Library:",
                        choices=c(
+                         "Sentiword"="sentiword_sentiment",
                          "AFINN"="afinn_sentiment",
                          "Bing"="bing_sentiment",
                          "NRC"="nrc_sentiment",
-                         "Hu Liu"="hu_sentiment",
-                         "Sentiword"="sentiword_sentiment"
+                         "Hu Liu"="hu_sentiment"
                        ),
-                       selected="afinn_sentiment"),
-
-                       sliderInput("senti_year2", "Year", 2000, 2016,
-                                   value = c(2000, 2016), sep=""))
-
+                       selected="sentiword_sentiment")
+          
+                ),
+         column(width = 4,
+                     
+                      sliderInput("senti_year2", "Year", 2000, 2016,
+                                   value = c(2000, 2016), sep=""),
+                       actionButton("toggle", "Switch Chart Type")
+                        )
+            )
 ), 
 
 server <- function(input, output, session) {
@@ -633,7 +641,6 @@ server <- function(input, output, session) {
   
 })
 
-
    sentiDataBar <- reactive({
     
       senti_data_bar <- party_average[party_average$year >= input$senti_year2[1]
@@ -643,7 +650,6 @@ server <- function(input, output, session) {
                                     & party_average$senti_type == input$senti_options,]
   
   })
-  
   
  output$senti_party <- renderPlot({
     
@@ -659,7 +665,8 @@ server <- function(input, output, session) {
       scale_colour_manual(values=party_colour) + 
       theme(axis.text.x = element_text(angle = 30, hjust = 1), 
             text = element_text(size=14),
-            legend.position="bottom", legend.background = element_rect())
+            legend.position="bottom", legend.background = element_rect()) +
+     guides(col=guide_legend(title=NULL),linetype=guide_legend(title=NULL))
     
   })
  
@@ -669,19 +676,21 @@ server <- function(input, output, session) {
     
     senti_bar_data$year <- as.factor(senti_bar_data$year)
     
-p9 <- ggplot(senti_bar_data, aes(x=interaction(year, party_group, lex.order = TRUE), y=sentiment, group = interaction(debate_type, party_group),
-                             fill = interaction(debate_type, party_group), width=.75))
+    p9 <- ggplot(senti_bar_data, aes(x = party_group, y=sentiment,
+                                     group = interaction(debate_type, party_group),
+                                     fill = interaction(debate_type, party_group), width=.75))
 
-p9 + geom_bar(stat = "identity", position = "dodge") +
-  scale_x_discrete(name="Year", breaks=seq(2000,2020, by=2)) + 
-  scale_y_continuous(name="Sentiment Score") + 
-  scale_fill_manual(values=party_type_colour) + 
-  theme(axis.text.x = element_text(angle = 30, hjust = 1), 
-        text = element_text(size=14),
-        legend.position="bottom", legend.background = element_rect()) + 
-  guides(fill=guide_legend(title=NULL))
+    p9 + geom_bar(stat = "identity", position = "dodge") +
+      scale_x_discrete(name="Year", breaks=seq(2000,2020, by=2)) + 
+      scale_y_continuous(name="Sentiment Score") + 
+      scale_fill_manual(values=party_type_colour) + 
+      facet_grid(.~year, switch = "x", scales = "free_x", space = "free_x") +
+      theme(axis.text.x = element_text(angle = 30, hjust = 1), 
+          text = element_text(size=14),
+          legend.position="bottom", legend.background = element_rect(),
+          strip.background = element_blank()) +
+      guides(fill=guide_legend(title=NULL))
 
-    
   })
  
   output$senti_party_box<-renderPlot({
@@ -700,37 +709,40 @@ p9 + geom_bar(stat = "identity", position = "dodge") +
       scale_fill_manual(values=party_colour) + 
       theme(axis.text.x = element_text(angle = 30, hjust = 1), 
             text = element_text(size=14),
-            legend.position="bottom", legend.background = element_rect())
+            legend.position="bottom", legend.background = element_rect()) +
+      guides(fill=guide_legend(title=NULL),col=guide_legend(title=NULL))
     
   })
   
 },
-options = list(height = 600)
+options = list(height = 670)
 )
 
 ```
 
 
+## Discussion
 
 
 
 
-## Methodology
+
+
+# Methodology
 
 <a name="senti_exp"></a>
 
-There are three <!-- There are almost certainly more --> options for sentiment analysis:
+There are five <!-- There are almost certainly more --> options for sentiment analysis:
 
-1. The [http://www2.imm.dtu.dk/pubdb/views/publication_details.php?id=6010](AFINN) library by Finn Årup Nielsen, labelled 'AFINN'. AFINN assigns a score from -5 (most negative) to +5 (most positive) to the words used in association with the different disability terms and phrases searched for in the Hansard. [-@nielsen2011]
+1. The [Sentiwords](http://sentiwordnet.isti.cnr.it/) dataset, created by Stefano Baccianella, Andrea Esuli, and Fabrizio Sebastiani. Sentiwords identifies words as either positive or negative. The Sentiwords library was accessed through the library was accessed through the [`lexicon`](https://cran.r-project.org/package=lexicon) package. [@baccianella2010]
 
-2. The [https://www.cs.uic.edu/~liub/FBS/sentiment-analysis.html](Opinion Mining, Sentiment Analysis), and Opinion Spam Detection</a> dataset by Bing Liu, Minqing Hu and Junsheng Cheng, labelled 'Bing'. Bing identifies a word as either positive or negative.
+2. The [AFINN](http://www2.imm.dtu.dk/pubdb/views/publication_details.php?id=6010) library by Finn Årup Nielsen, labelled 'AFINN'. AFINN assigns a score from -5 (most negative) to +5 (most positive) to each word. The AFINN library was accessed through the [`syuzhet`](https://cran.r-project.org/package=syuzhet) package. [@nielsen2011]
 
-3. The [http://saifmohammad.com/WebPages/lexicons.html](NRC Word-Emotion Association Lexicon), library by Saif M. Mohammad, labelled 'NRC'. NRC identifies words as either positive or negative.
+3. The [Opinion Mining, Sentiment Analysis](https://www.cs.uic.edu/~liub/FBS/sentiment-analysis.html), and Opinion Spam Detection</a> dataset by Bing Liu, Minqing Hu and Junsheng Cheng, labelled 'Bing'. Bing identifies words as either positive or negative. The Bing library was access through the [`syuzhet`](https://cran.r-project.org/package=syuzhet) package. [@liu2005]
 
-4. The Hu & Liu dataset.
+4. The [NRC Word-Emotion Association Lexicon](http://saifmohammad.com/WebPages/lexicons.html), library by Saif M. Mohammad, labelled 'NRC'. NRC identifies words as either positive or negative. The NRC library was access through the [`syuzhet`](https://cran.r-project.org/package=syuzhet) package. [@mohammad2013]
 
-5. The Sentiwords dataset.
-
+5. The Hu & Liu dataset, by Minqing Hu and Bing Liu, labelled 'Hu Liu'. Hu & Liu identifies words as either positive or negative. The Hu & Liu library was accessed through the [`sentimentr`](https://cran.r-project.org/package=sentimentr) package. [@hu2004] 
 
 ### Dataset
 The [ParlParse](http://parser.theyworkforyou.com/) service, operated by [They Work For You](https://www.theyworkforyou.com/), records everything said in parliament from 1936 to the present day. The full dataset includes 5,440,317 different speeches, of which [438,180][FIX NUMBER!] are included in disability dataset, as they contain one or more of the disability phrases searched for. There are a further [however many] entries in the all debate dataset, representing a random sample of 5% of all Hansard entries.
@@ -797,7 +809,7 @@ The ParlParse service does not record the party affiliation of MPs, or an ID num
 
 
 
-### Notes
+# Notes
 
 Source code is available on [Github](https://github.com/EvanOdell/hansardBlog). For assistance, questions or comments please contact Evan Odell via [email](mailto:evan.odell@disabilityrightsuk.org) or  [Twitter](https://twitter.com/evanodell), or raise an issue on Github.
 
@@ -805,6 +817,6 @@ This app is licensed under an [MIT License](https://github.com/EvanOdell/hansard
 
 The data used in this app was retrieved from the [ParlParse](https://www.theyworkforyou.com/pwdata/scrapedxml/) service operated by [MySociety](https://www.mysociety.org/). <!-- link to dataset -->
 
-This app was constructed using [`shiny`](http://shiny.rstudio.com/). Plots are produced with `ggplot2` and `scales`. Sentiment analysis was conducted using the [`sentimentr`](https://cran.r-project.org/package=sentimentr), [`syuzhet`](https://cran.r-project.org/package=syuzhet), [`lexicon`](https://cran.r-project.org/package=lexicon) and [`RSentiment`](https://cran.r-project.org/package=RSentiment) packages.
+This app was constructed using [`shiny`](http://shiny.rstudio.com/). Plots are produced with `ggplot2` and `scales`. Sentiment analysis was conducted using the [`sentimentr`](https://cran.r-project.org/package=sentimentr), [`syuzhet`](https://cran.r-project.org/package=syuzhet) and [`lexicon`](https://cran.r-project.org/package=lexicon) packages.
 
 # References
