@@ -15,7 +15,15 @@ runtime: shiny
 #### [Sentiment Analysis](#senti)
 ##### [Sentiment Chart](#senti_chart)
 
+<!-- TO Do
+1. Write discussion
 
+2. Link to GIT repository
+
+3. Upload Dataset
+
+5. Link to Dataset
+-->
 
 # Disability discussion in parliament
 How do politicians discuss disability issues? Has this changed over time? Are there any relationships between how disability issues are debated in Parliament and the policy decisions made by governments? In an attempt to answer these questions I downloaded everything that has ever been said in the House of Commons from 1936 to the present day.
