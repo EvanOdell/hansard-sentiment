@@ -9,17 +9,44 @@ summary(all_average)
 
 summary(senti_combined)
 
-p6 <- ggplot(senti_combined, aes(x=speech_date))
+senti_combined <- readRDS("./data/senti_combined.rds")
 
-p6 + geom_smooth(aes(y=sentiment, group = interaction(debate_type,government),
-                     linetype = government, col = debate_type), size=1.5, formula=y ~ log(x)) +
+senti_set <- senti_combined[senti_combined$year >= 1937 
+                             & senti_combined$year <= 2016
+                             & senti_combined$senti_type == "sentiword_sentiment",]
+
+
+p6 <- ggplot(senti_set, aes(x=speech_date, col = debate_type, linetype=debate_type))
+
+p6 + geom_smooth(aes(y=sentiment, linetype = debate_type, 
+                     col=debate_type), size=1.5, formula=y ~ log(x)) +
   scale_x_date(date_breaks = "5 year",date_labels = "%Y", name = "Date") + 
   scale_y_continuous(name="Sentiment Score") + 
-  scale_linetype_manual(values=govt_line) +
-  scale_colour_manual(values=senti_colour) + 
+  scale_linetype_manual(values=debate_line) +
+  scale_colour_manual(values=senti_colour) +
   theme(axis.text.x = element_text(angle = 30, hjust = 1), 
         text = element_text(size=14),
-        legend.position="bottom", legend.background = element_rect())
+        legend.position="bottom", legend.background = element_rect()) +
+  guides(col=guide_legend(title=NULL),linetype=guide_legend(title=NULL))
+
+
+
+p7 <- ggplot(senti_set, aes(x=speech_date, y=sentiment, 
+                            col= interaction(debate_type, government),
+                            linetype = interaction(debate_type, government)))
+
+p7 + geom_smooth(size=1.5, formula=y ~ log(x)) +
+  scale_x_date(date_breaks = "2 year",date_labels = "%Y", name = "Date") + 
+  scale_y_continuous(name="Sentiment Score") + 
+  scale_linetype_manual(values=govt_type_line) +
+  scale_colour_manual(values=gov_type_colour) +
+  theme(axis.text.x = element_text(angle = 30, hjust = 1), 
+        text = element_text(size=14),
+        legend.position="bottom", legend.background = element_rect()) +
+  guides(col=guide_legend(title=NULL),linetype=guide_legend(title=NULL))
+
+
+
 
 p8 <- ggplot(senti_combined, aes(x=year, y=sentiment, group = debate_type, col = debate_type, fill=debate_type, width=.75))
 
@@ -58,11 +85,16 @@ p8 + geom_bar(stat = "identity", position = "dodge") +
 
 
 
-senti_line <- c("All Debate" = "dotted",
+debate_line <- c("All Debate" = "dotted",
                 "Disability" = "solid")
 
 govt_line <- c("Government" = "solid",
                "Opposition" = "dotted")
+
+govt_type_line <- c("All Debate.Government" = "dotted",
+                    "All Debate.Opposition" = "dotted",
+                    "Disability.Government" = "solid",
+                    "Disability.Opposition" = "solid")
 
 govt_colour <- c("Government" = "red",
                "Opposition" = "purple")
@@ -82,6 +114,15 @@ party_colour <- c("Liberal Democrat" = "#FDBB30",
 
 
 party_type_colour <- c("All Debate.Conservative" = "#cc5643",
+                       "Disability.Conservative" = "#c18b40",
+                       "All Debate.Labour" = "#7ea342",
+                       "Disability.Labour" = "#4aab83",
+                       "All Debate.Liberal Democrat" = "#698ece",
+                       "Disability.Liberal Democrat" = "#8068cd",
+                       "All Debate.Other" = "#c459b5",
+                       "Disability.Other" = "#c45d83")
+
+party_type_line <- c("All Debate.Conservative" = "#cc5643",
                        "Disability.Conservative" = "#c18b40",
                        "All Debate.Labour" = "#7ea342",
                        "Disability.Labour" = "#4aab83",
@@ -167,7 +208,7 @@ p6 + geom_smooth(aes(y=sentiment, group = interaction(debate_type, government),
   scale_x_date(date_breaks = "5 year",date_labels = "%Y", name = "Date") + 
   scale_y_continuous(name="Sentiment Score") + 
   
-  scale_linetype_manual(values=senti_line) +
+  scale_linetype_manual(values=debate_line) +
   scale_colour_manual(values=govt_colour) +
   theme(axis.text.x = element_text(angle = 30, hjust = 1), 
         text = element_text(size=14),
@@ -234,7 +275,7 @@ output$sentiplot<-renderPlot({
   p6 + geom_smooth(aes(group = interaction(type,party_group), linetype = type, col=party_group), size=1.5, formula=y ~ log(x)) +
     scale_x_date(date_breaks = "5 year",date_labels = "%Y", name = "Date") + 
     scale_y_continuous(name="Sentiment Score") + 
-    scale_linetype_manual(values=senti_line) +
+    scale_linetype_manual(values=debate_line) +
     scale_colour_manual(values=senti_colour) + 
     theme(axis.text.x = element_text(angle = 30, hjust = 1), 
           text = element_text(size=14),

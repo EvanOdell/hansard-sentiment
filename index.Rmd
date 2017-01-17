@@ -68,6 +68,9 @@ fmt_dcimals <- function(decimals=0){
 ```
 
 
+
+
+
 ```{r, include=FALSE}
 
 line_colours <- c("Disabled Person"	=	"#006109",
@@ -102,8 +105,8 @@ line_styles <- c("Disabled Person"	=	"solid",
                  "Amputee"	=	"dotdash",
                  "Retard"	=	"dotdash")
 
-senti_line <- c("All Debate" = "dotted",
-                "Disability" = "solid")
+debate_line <- c("All Debate" = "solid",
+                "Disability" = "dotted")
 
 senti_colour <- c("All Debate" = "#006332",
                   "Disability" = "#250858")
@@ -114,10 +117,15 @@ govt_line <- c("Government" = "solid",
 govt_colour <- c("Government" = "#006332",
                "Opposition" = "#250858")
 
-gov_type_colour <- c("All Debate.Government" = "#006332",
-                    "All Debate.Opposition" = "#99C0AD",
-                    "Disability.Government" = "#250858",
-                    "Disability.Opposition" = "#A79CBC")
+govt_type_line <- c("All Debate.Government" = "dotted",
+                    "All Debate.Opposition" = "dotted",
+                    "Disability.Government" = "solid",
+                    "Disability.Opposition" = "solid")
+
+gov_type_colour <- c("All Debate.Government" = "#8975ca",
+                    "All Debate.Opposition" = "#71a659",
+                    "Disability.Government" = "#cb5582",
+                    "Disability.Opposition" = "#c5783e")
 
 party_colour <- c("Liberal Democrat" = "#FDBB30",
                   "Conservative" = "#0087DC",
@@ -132,6 +140,16 @@ party_type_colour <- c("All Debate.Conservative" = "#0087DC",
                        "Disability.Liberal Democrat" = "#fedb91",
                        "All Debate.Other" = "#2b2b2b",
                        "Disability.Other" = "#bebebe")
+
+party_type_line <- c("All Debate.Conservative" = "dotted",
+                       "Disability.Conservative" = "solid",
+                       "All Debate.Labour" = "dotted",
+                       "Disability.Labour" = "solid",
+                       "All Debate.Liberal Democrat" = "dotted",
+                       "Disability.Liberal Democrat" = "solid",
+                       "All Debate.Other" = "dotted",
+                       "Disability.Other" = "solid")
+
 
 
 ```
@@ -327,18 +345,18 @@ server <- function(input, output, session) {
       
     senti_set <- sentiDataSet()
     
-    p6 <- ggplot(senti_set, aes(x=speech_date, group = debate_type, col = debate_type))
-    
+    p6 <- ggplot(senti_set, aes(x=speech_date, col = debate_type, linetype=debate_type))
+
     p6 + geom_smooth(aes(y=sentiment, linetype = debate_type, 
-                         col=debate_type), size=1.5, formula=y ~ log(x)) +
+                     col=debate_type), size=1.5, formula=y ~ log(x)) +
       scale_x_date(date_breaks = "5 year",date_labels = "%Y", name = "Date") + 
       scale_y_continuous(name="Sentiment Score") + 
-      scale_linetype_manual(values=senti_line) +
+      scale_linetype_manual(values=debate_line) +
       scale_colour_manual(values=senti_colour) +
       theme(axis.text.x = element_text(angle = 30, hjust = 1), 
-            text = element_text(size=14),
-            legend.position="bottom", legend.background = element_rect()) +
-  guides(fill=guide_legend(title=NULL),col=guide_legend(title=NULL))
+          text = element_text(size=14),
+          legend.position="bottom", legend.background = element_rect()) +
+      guides(col=guide_legend(title=NULL),linetype=guide_legend(title=NULL))
     
   })
   
@@ -348,18 +366,18 @@ server <- function(input, output, session) {
     
     senti_bar_data$year <- as.factor(senti_bar_data$year)
     
-    p8 <- ggplot(senti_bar_data, aes(x=year, y=sentiment, group = debate_type, col = debate_type, fill=debate_type, width=.75))
+    p8 <- ggplot(senti_bar_data, aes(x=year, y=sentiment, group = debate_type, fill=debate_type, width=.75))
     
     p8 + geom_bar(stat = "identity", position = position_dodge(width=0.5)) +
       scale_x_discrete(name="Year", breaks=seq(1935,2020, by=5)) +
-      facet_grid(.~year, switch = "x", scales = "free_x", space = "free_x") +
+      #facet_grid(.~year, switch = "x", scales = "free_x", space = "free_x") +
       scale_y_continuous(name="Sentiment Score") + 
-      scale_colour_manual(values=senti_colour) + 
+      #scale_colour_manual(values=senti_colour) + 
       scale_fill_manual(values=senti_colour) + 
       theme(axis.text.x = element_text(angle = 30, hjust = 1), 
             text = element_text(size=14),
             legend.position="bottom", legend.background = element_rect()) + 
-      guides(col=guide_legend(title=NULL))
+      guides(col=guide_legend(title=NULL), fill=guide_legend(title=NULL))
     
   })
  
@@ -374,7 +392,7 @@ server <- function(input, output, session) {
     p7 + geom_boxplot(aes(col = debate_type)) +
       scale_x_discrete(name="Year", breaks=seq(1935,2020, by=5)) + 
       scale_y_continuous(name="Sentiment Score") + 
-      scale_linetype_manual(values=senti_line) +
+      scale_linetype_manual(values=debate_line) +
       scale_colour_manual(values=senti_colour) + 
       theme(axis.text.x = element_text(angle = 30, hjust = 1), 
             text = element_text(size=14),
@@ -490,19 +508,20 @@ server <- function(input, output, session) {
     
     senti_set <- sentiDataGov()
        
-    p6 <- ggplot(senti_set, aes(x=speech_date))
-    
-  p6 + geom_smooth(aes(y=sentiment, group = interaction(debate_type, government),
-                       linetype = debate_type, col = government),
-                       size=1.5, formula=y ~ log(x)) +
+p7 <- ggplot(senti_set, aes(x=speech_date, y=sentiment, 
+                            col= interaction(debate_type, government),
+                            linetype = interaction(debate_type, government)))
+
+p7 + geom_smooth(size=1.5, formula=y ~ log(x)) +
   scale_x_date(date_breaks = "2 year",date_labels = "%Y", name = "Date") + 
   scale_y_continuous(name="Sentiment Score") + 
-  scale_linetype_manual(values=senti_line) +
-  scale_colour_manual(values=govt_colour) +
+  scale_linetype_manual(values=govt_type_line) +
+  scale_colour_manual(values=gov_type_colour) +
   theme(axis.text.x = element_text(angle = 30, hjust = 1), 
         text = element_text(size=14),
         legend.position="bottom", legend.background = element_rect()) +
-  guides(fill=guide_legend(title=NULL),linetype=guide_legend(title=NULL))
+  guides(col=guide_legend(title=NULL),linetype=guide_legend(title=NULL))
+
     
   })
   
@@ -539,7 +558,7 @@ p8 + geom_bar(stat = "identity", position = "dodge") +
     p7 + geom_boxplot(aes(col = debate_type, fill=government)) +
       scale_x_discrete(name="Year", breaks=seq(2000,2020, by=2)) + 
       scale_y_continuous(name="Sentiment Score") + 
-      scale_linetype_manual(values=senti_line) +
+      scale_linetype_manual(values=debate_line) +
       scale_colour_manual(values=senti_colour) + 
       theme(axis.text.x = element_text(angle = 30, hjust = 1), 
             text = element_text(size=14),
@@ -654,19 +673,22 @@ server <- function(input, output, session) {
  output$senti_party <- renderPlot({
     
        senti_set <- sentiDataParty()
-       
-    p6 <- ggplot(senti_set, aes(x=speech_date))
+
+    p7 <- ggplot(senti_set, aes(x=speech_date, y=sentiment, 
+                            col= interaction(debate_type, party_group),
+                            linetype = interaction(debate_type, party_group)))
+
+p7 + geom_smooth(size=1.5, formula=y ~ log(x)) +
+  scale_x_date(date_breaks = "2 year",date_labels = "%Y", name = "Date") + 
+  scale_y_continuous(name="Sentiment Score") + 
+  scale_linetype_manual(values=party_type_line) +
+  scale_colour_manual(values=party_type_colour) +
+  theme(axis.text.x = element_text(angle = 30, hjust = 1), 
+        text = element_text(size=14),
+        legend.position="bottom", legend.background = element_rect()) +
+  guides(col=guide_legend(title=NULL),linetype=guide_legend(title=NULL))
     
-    p6 + geom_smooth(aes(y=sentiment, group = interaction(debate_type, party_group),
-                         linetype = debate_type, col = party_group), size=1.5, formula=y ~ log(x)) +
-      scale_x_date(date_breaks = "2 year",date_labels = "%Y", name = "Date") + 
-      scale_y_continuous(name="Sentiment Score") + 
-      scale_linetype_manual(values=senti_line) +
-      scale_colour_manual(values=party_colour) + 
-      theme(axis.text.x = element_text(angle = 30, hjust = 1), 
-            text = element_text(size=14),
-            legend.position="bottom", legend.background = element_rect()) +
-     guides(col=guide_legend(title=NULL),linetype=guide_legend(title=NULL))
+    
     
   })
  
@@ -704,7 +726,7 @@ server <- function(input, output, session) {
     p7 + geom_boxplot(aes(col = debate_type, fill=party_group)) +
       scale_x_discrete(name="Year", breaks=seq(2000,2020, by=2)) + 
       scale_y_continuous(name="Sentiment Score") + 
-      scale_linetype_manual(values=senti_line) +
+      scale_linetype_manual(values=debate_line) +
       scale_colour_manual(values=senti_colour) + 
       scale_fill_manual(values=party_colour) + 
       theme(axis.text.x = element_text(angle = 30, hjust = 1), 
