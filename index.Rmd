@@ -6,7 +6,7 @@ output:
   html_document:
     css: style.css
     keep_md: true
-bibliography: ExportedItems.bib
+bibliography: references.bib
 runtime: shiny
 ---
 
