@@ -34,7 +34,9 @@ How do politicians discuss disability issues? Has this changed over time? Are th
 <a name="freq"></a>
 I grouped 23 different disability relevant phrases into 15 groups. I selected phrases that are likely to be only used in relation to disability issues. This means that words such as 'blind' or 'deaf' cannot be used, as they are frequently used in non-disability discussion; e.g. 'the member opposite is deaf to the concerns of ordinary people'. See the complete list of phrases and their groupings [below](#word_list)
 
-The number of uses of each group of phrases were counted for each day of debate in parliament, and averaged over a rolling calendar year.
+The number of uses of each group of phrases were counted for each day of debate in parliament, and averaged over a rolling calendar year. Note that the scale on the chart is a logarithmic scale, which means that each tick mark on the scale is the previous tick mark multiplied by two. This is so that changes in the frequency of relatively uncommon words is easy to see.
+
+<!--Data import and custom functions -->
 
 ```{r setup, include=FALSE}
 
@@ -76,9 +78,7 @@ fmt_dcimals <- function(decimals=0){
 ```
 
 
-
-
-
+<!--Colours for charts -->
 ```{r, include=FALSE}
 
 line_colours <- c("Disabled Person"	=	"#006109",
@@ -248,11 +248,9 @@ There are several patterns in the data that I would like to draw your attention 
 <blockquote class="twitter-tweet" data-lang="en"><p lang="en" dir="ltr">The Social Model of Disability says society disables us, not our bodies. So putting ‘disabled’ first before ‘people’ highlights this <a href="https://twitter.com/hashtag/UKDHM?src=hash">#UKDHM</a></p>&mdash; C. Farquharson MBE (@clentonF) <a href="https://twitter.com/clentonF/status/803301978633859073">November 28, 2016</a></blockquote>
 <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
 
-Another notable trend is the increase in the use of 'amputee' in the years following armed conflicts. This is unsurprising, given the high profile of injured soldiers and the often traumatic nature of limb loss in armed conflict, but they make up a very small proportion of amputatees in the UK. Between October 2001 and March 2015 [234 UK service personnel had a limb amputated](https://www.gov.uk/government/uploads/system/uploads/attachment_data/file/449400/AnnexA_20150730_DAY-RELEASE_Quarterly_Afghanistan_Iraq_Amputation_Statistics.pdf), while according to Diabetes UK there are [135 amputations a week in England alone](https://www.diabetes.org.uk/about_us/news/more-than-135-diabetes-amputations-every-week/) as a result of diabetes complications.[-@ahmad2014] found a rate of 26.3 amputations per 100,000 people aged 50–84 years over a six year period in England.
+Another notable trend is the increase in the use of 'amputee' in the years following armed conflicts. This is unsurprising, given the high profile of injured soldiers and the often traumatic nature of limb loss in armed conflict, but they make up a very small proportion of amputatees in the UK. Between October 2001 and March 2015 [234 UK service personnel had a limb amputated](https://www.gov.uk/government/uploads/system/uploads/attachment_data/file/449400/AnnexA_20150730_DAY-RELEASE_Quarterly_Afghanistan_Iraq_Amputation_Statistics.pdf), while according to Diabetes UK there are [135 amputations a week in England alone](https://www.diabetes.org.uk/about_us/news/more-than-135-diabetes-amputations-every-week/) as a result of diabetes complications. Naseer Ahmad, G Neil Thomas, Paramjit Gill, Colin Chan, and Francesco Torella [-@ahmad2014] found a [rate of 26.3 amputations per 100,000 people aged 50–84 years over a six year period in England](http://journals.sagepub.com/doi/10.1177/0141076814557301).
 
-
-There are also very clear and obvious spikes in the use of 'paralympics' every four years.
-
+There are also very clear and obvious spikes in the use of 'paralympics' every four years. The reasons for this, I suppose, are obvious.
 
 
 # Sentiment Analysis
@@ -829,7 +827,7 @@ The ParlParse service does not record the party affiliation of MPs, or an ID num
     + 'spastic'
 
 * Sub-Normal
-    + 'sub_normal'
+    + 'sub-normal'
 
 * Amputee
     + 'amputee'
@@ -841,7 +839,7 @@ The ParlParse service does not record the party affiliation of MPs, or an ID num
 
 # Notes
 
-Source code is available on [Github](https://github.com/EvanOdell/hansardBlog). For assistance, questions or comments please contact Evan Odell via [email](mailto:evan.odell@disabilityrightsuk.org) or  [Twitter](https://twitter.com/evanodell), or raise an issue on Github.
+Source code is available on [Github](https://github.com/EvanOdell/hansard-sentiment). For assistance, questions or comments please contact Evan Odell via [email](mailto:evan.odell@disabilityrightsuk.org) or [Twitter](https://twitter.com/evanodell), or raise an issue on Github.
 
 This app is licensed under an [MIT License](https://github.com/EvanOdell/hansardBlog/blob/master/LICENSE).
 
