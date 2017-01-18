@@ -12,6 +12,11 @@ library(data.table)
 library(syuzhet)
 library(sentimentr)
 
+
+
+#write_rds(debate, "debate.rds")
+
+
 system.time(
   debate <- readRDS("debate.rds")
 )
