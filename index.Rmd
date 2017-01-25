@@ -841,7 +841,7 @@ The ParlParse service does not record the party affiliation of MPs, or an ID num
 
 Source code is available on [Github](https://github.com/EvanOdell/hansard-sentiment). For assistance, questions or comments please contact Evan Odell via [email](mailto:evan.odell@disabilityrightsuk.org) or [Twitter](https://twitter.com/evanodell), or raise an issue on Github.
 
-This app is licensed under an [MIT License](https://github.com/EvanOdell/hansardBlog/blob/master/LICENSE).
+This app is licensed under an [MIT License](https://github.com/EvanOdell/hansard-sentiment/blob/master/LICENSE).
 
 The data used in this app was retrieved from the [ParlParse](https://www.theyworkforyou.com/pwdata/scrapedxml/) service operated by [MySociety](https://www.mysociety.org/). <!-- link to dataset -->
 
