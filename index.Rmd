@@ -48,17 +48,9 @@ library(grid)
 
 disability_phrase_groups <- readRDS("./data/disability_phrase_groups.rds")
 
-#afinn_combined <- readRDS("./data/afinn_combined.rds")
-
-#senti_combined <- readRDS("./data/afinn_combined.rds")#FAKE
-
 senti_combined <- readRDS("./data/senti_combined.rds")
 
-#average_sentiment <- readRDS("./data/average_sentiment.rds")
-
 all_average <- readRDS("./data/all_average.rds")
-
-#all_average <- readRDS("./data/average_sentiment.rds")###FAKE!!!
 
 government_average <- readRDS("./data/government_average.rds")
 

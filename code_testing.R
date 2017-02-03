@@ -3,7 +3,6 @@
 
 
 
-looks <- readRDS("./data/average_sentiment.rds")
 
 summary(all_average)
 
@@ -336,3 +335,5 @@ z.na <-na.locf(deb_sent3, xout = g)
 rng <- range(time(deb_sent3))
 
 deb_sent3 <- merge(deb_sent3, zoo(, seq(rng[1], rng[2], by = 'day')))
+
+
