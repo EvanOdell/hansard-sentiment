@@ -28,7 +28,7 @@ runtime: shiny
 # Disability discussion in parliament
 How do politicians discuss disability issues? Has this changed over time? Are there any relationships between how disability issues are debated in Parliament and the policy decisions made by governments? In an attempt to answer these questions I downloaded everything that has ever been said in the House of Commons from 1936 to the present day.
 
-
+<!-- Do frequency with ability to split by party -->
 
 # Frequency of mentions of disability-relevant phrases
 <a name="freq"></a>
@@ -183,12 +183,12 @@ ui = fluidPage(
                
                checkboxGroupInput("category_input",
                                   "Words and Phrases",
-                                  c("Disabled Person", 
+                                  c("Person/People With Disability" = "People With Disability",
+                                    "Disabled Person/People"="Disabled Person", 
                                     "Disabled Men",
                                     "Disabled Women",          
                                     "Disabled Children",
                                     "Disability Other",
-                                    "People With Disability",
                                     "Children With Disability",
                                     "Any With Disability",
                                     "Independent Living",
@@ -198,7 +198,7 @@ ui = fluidPage(
                                     "Sub-Normal",
                                     "Amputee",
                                     "Retard"),
-                                  selected ="Disabled Person"),
+                                  selected =c("Disabled Person","People With Disability")),
          
                sliderInput("year", "Year", 1936, 2016, value = c(1936, 2016), sep="")
            )
@@ -210,7 +210,7 @@ server = function(input, output, session) {
   
   getDataSet <- reactive({
     
-    all_data <- disability_phrase_groups[disability_phrase_groups$Term == input$category_input
+    all_data <- disability_phrase_groups[disability_phrase_groups$Term %in% input$category_input
                                          & disability_phrase_groups$Year >= input$year[1]
                                          & disability_phrase_groups$Year <= input$year[2],]
   })
@@ -342,7 +342,7 @@ server <- function(input, output, session) {
     
       senti_data <- all_average[all_average$year >= input$senti_year[1]
                                     & all_average$year <= input$senti_year[2]
-                                    & all_average$debate_type == input$debate_type
+                                    & all_average$debate_type %in% input$debate_type
                                     & all_average$senti_type == input$senti_options,]
   
   })
@@ -416,7 +416,7 @@ options = list(height = 600)
 
 ### Government vs Opposition
 <a name="gov_dis"></a>
-These charts show the scores for all debate and disability debate, seperated between government and opposition, from 2000 <!-- Check date here!--> to the end of 2016.
+These charts show the scores for all debate and disability debate, seperated between government and opposition, from 2000 <!-- Check date here!-->to the end of 2016.
 
 ```{r, echo=FALSE}
 
@@ -583,7 +583,7 @@ options = list(height = 650)
 
 ### By Party
 <a name="party_dis"></a>
-These charts show the scores for all debate and disability debate, seperated between different parties, from 2000 <!-- Check date here!--> to the end of 2016. Conservatives and Liberal Democrats are their own parties, Labour and Labour Co-op MPs are grouped together as Labour. All other parties are grouped together as Other. <!-- As and when, add SDP to liberal democrats -->
+These charts show the scores for all debate and disability debate, seperated between different parties, from 2000 <!-- Check date here!-->to the end of 2016. The Conservatives and Liberal Democrats are their own parties, and Labour and Labour Co-op MPs are grouped together as Labour. All other parties are grouped together as Other. <!-- As and when, add SDP to liberal democrats -->
 
 ```{r, echo=FALSE}
 
@@ -751,9 +751,21 @@ options = list(height = 670)
 
 ## Discussion
 
+This analysis suggests the possible existence of a phenomenon that many disability campaigners have long suspected; that disabled people and disability issues are used by politicians as a tool to advance a political point. This is not restricted to certain parties, but appears across the political spectrum. The distinction is rather between being in government and being in opposition.
 
+In the charts comparing government and opposition sentiments the government is consistently more positive when discussing disability issues, no matter who is in government or which sentiment library is used. When looking at individual parties, you can see the transition quite clearly. Labour's sentiment when debating disability drops quite substantially in 2010 compared to the previous decade, and falls again in 2011, to sit below zero, on average, in 3 out of the 5 sentiment libraries. Likewise, the sentiment of the Conservative party increases substantially in 2010, along with that of the Liberal Democrats, their coalition partners from 2010 to 2015.
 
+The average sentiments in all debate, unsurprising, follow a similar pattern. A party in government is going to spend much more time showing off what is has achieved or plans to achieve, while an opposition party, by its nature, opposes. So a government uses more positive language, and an opposition party more negative language. <!-- I really need the frequency analysis by party--> 
 
+However, the debate about disability is more negative than average, and undergoes a greater switch from positive to negative when a party leaves government, and vice versa when a party enters government. In all the libraries except `AFINN`, disability debate from the Labour party becomes more negative, and more quickly, than debate on all other topics post their 2010 election defeat. Likewise, the Conservative party, who were consistently more negative on disability than their average topic in 3 out of 5 libraries throughout the 2000s, see a substantial increase in the positivity of their disability debate, an increase that is much greater than the increase in their overall debate.
+
+This suggests that disability is a popular topic for opposition parties to criticise the government on. Parties of all stripes have made promises in opposition or in election manifestos to increase the employment of disabled people, or end discrimination, or make public spaces more accessible, and these are all admirable aims. But when those parties find themselves in government, they often fail to deliver on those pledges. So any opposition MP looking for an awkward question to ask a government minister, or wanting to find a policy failure
+
+A current example is the Conservative government's pledge on page 19 of [their 2015 election manifesto](https://s3-eu-west-1.amazonaws.com/manifesto2015/ConservativeManifesto2015.pdf) to cut the disability employment gap in half, presumably by 2020: 
+
+> Last year alone, 140,000 disabled people found work. But the jobless rate for this group remains too high and, as part of our objective to achieve full employment, we will aim to halve the disability employment gap: we will transform policy, practice and public attitudes, so that hundreds of thousands more disabled people who can and want to be in work find employment.
+
+The All Party Parliamentary Group on Disability, in a report at the end of last year, pointed out that at the [current rate of change cutting the disability employment gap in half will take until 2065](https://www.cass.city.ac.uk/__data/assets/pdf_file/0010/339607/All-Party-Parliamentary-Group-on-Disability-Ahead-of-the-Arc-Report.pdf). It is just one of many instances of a party with an admirable election pledge failing to deliver it once in office.
 
 
 # Methodology
