@@ -163,16 +163,25 @@ party_type_line <- c("All Debate.Conservative" = "dotted",
 
 shinyApp(
   
+       
+  
 ui = fluidPage(
-    column(width=9,
+  tags$head(tags$style(HTML(".multicol{font-size:12px;
+                                                  height:auto;
+                                                  -webkit-column-count: 4;
+                                                  -moz-column-count: 4;
+                                                  column-count: 4;
+                                                  }"))),
+    fluidRow(
           
                h4("Disability Discussion Frequency Chart"),
-               plotOutput("hansardplot")
+               plotOutput("hansardplot")),
            
-    ),
-    column(width=3,
+    fluidRow(
           
-               
+            tags$div(align = "left", 
+                            class = "multicol",
+                     
                checkboxGroupInput("category_input",
                                   "Words and Phrases",
                                   c("Person/People With Disability" = "People With Disability",
@@ -190,7 +199,7 @@ ui = fluidPage(
                                     "Sub-Normal",
                                     "Amputee",
                                     "Retard"),
-                                  selected =c("Disabled Person","People With Disability")),
+                                  selected =c("Disabled Person","People With Disability"))),
          
                sliderInput("year", "Year", 1936, 2016, value = c(1936, 2016), sep="")
            )
@@ -231,7 +240,7 @@ server = function(input, output, session) {
   
   
 },
-options = list(height = 600)
+options = list(height = 650)
 )
 ```
 
@@ -271,17 +280,17 @@ ui <- fluidPage(
   fluidRow(
                          conditionalPanel(
                            condition = "input.toggle % 3 == 0",
-                           h5("Sentiment Line Chart"),
+                           tags$em(tags$h4("Sentiment Line Chart")),
                            plotOutput("sentiplot")
                            ),
                          conditionalPanel(
                            condition = "input.toggle % 3 == 2",
-                           h5("Sentiment Box Chart"),
+                           tags$em(tags$h4("Sentiment Box Chart")),
                            plotOutput("sentibox")
                            ),
                          conditionalPanel(
                            condition = "input.toggle % 3 == 1",
-                           h5("Sentiment Bar Chart"),
+                           tags$em(tags$h4("Sentiment Bar Chart")),
                            plotOutput("sentibar")
                          )
          
@@ -308,7 +317,8 @@ ui <- fluidPage(
                          "Hu Liu"="hu_sentiment"
                        ),
                        selected="sentiword_sentiment")
-                ),column(width = 4,
+                ),
+         column(width = 4,
                      
                        sliderInput("senti_year", "Year", 1936, 2016,
                                    value = c(1936, 2016), sep=""),
@@ -417,17 +427,17 @@ shinyApp(
 ui <- fluidPage(
   fluidRow(  conditionalPanel(
                            condition = "input.toggle % 3 == 0",
-                           h4("Sentiment Line Chart"),
+                           tags$em(tags$h4("Sentiment Line Chart")),
                            plotOutput("senti_gov")
                            ),
                          conditionalPanel(
                            condition = "input.toggle % 3 == 2",
-                           h4("Sentiment Box Chart"),
+                           tags$em(tags$h4("Sentiment Box Chart")),
                            plotOutput("senti_gov_box")
                            ),
                          conditionalPanel(
                            condition = "input.toggle % 3 == 1",
-                           h4("Sentiment Bar Chart"),
+                          tags$em(tags$h4("Sentiment Bar Chart")),
                            plotOutput("senti_gov_bar")
                          )
          
@@ -586,17 +596,17 @@ shinyApp(
   fluidRow( 
                       conditionalPanel(
                            condition = "input.toggle % 3 == 0",
-                           h4("Sentiment Line Chart"),
+                           tags$em(tags$h4("Sentiment Line Chart")),
                            plotOutput("senti_party")
                            ),
                          conditionalPanel(
                            condition = "input.toggle % 3 == 2",
-                           h4("Sentiment Box Chart"),
+                           tags$em(tags$h4("Sentiment Box Chart")),
                            plotOutput("senti_party_box")
                            ),
                          conditionalPanel(
                            condition = "input.toggle % 3 == 1",
-                           h4("Sentiment Bar Chart"),
+                           tags$em(tags$h4("Sentiment Bar Chart")),
                            plotOutput("senti_party_bar")
                          )
               ),
@@ -843,12 +853,12 @@ The ParlParse service does not record the party affiliation of MPs, or an ID num
 
 # Notes
 
-Source code is available on [Github](https://github.com/EvanOdell/hansard-sentiment). For assistance, questions or comments please contact Evan Odell via [email](mailto:evan.odell@disabilityrightsuk.org) or [Twitter](https://twitter.com/evanodell), or raise an issue on Github.
-
-This app is licensed under an [MIT License](https://github.com/EvanOdell/hansard-sentiment/blob/master/LICENSE).
-
+The source code for thsi app is available on [Github](https://github.com/EvanOdell/hansard-sentiment). For assistance, questions or comments please contact Evan Odell via [email](mailto:evan.odell@disabilityrightsuk.org) or [Twitter](https://twitter.com/evanodell), or raise an issue on Github.
+    
 The data used in this app was retrieved from the [ParlParse](https://www.theyworkforyou.com/pwdata/scrapedxml/) service operated by [MySociety](https://www.mysociety.org/). <!-- link to dataset -->
 
 This app was constructed using [`shiny`](http://shiny.rstudio.com/). Plots are produced with [`ggplot2`](https://cran.r-project.org/package=ggplot2) and [`scales`](https://cran.r-project.org/package=scales). Sentiment analysis was conducted using the [`sentimentr`](https://cran.r-project.org/package=sentimentr), [`syuzhet`](https://cran.r-project.org/package=syuzhet) and [`lexicon`](https://cran.r-project.org/package=lexicon) packages.
+
+The computer code used in this app is licensed under an [MIT License](https://github.com/EvanOdell/hansard-sentiment/blob/master/LICENSE). All other content on this page is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>. <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons Licence" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/80x15.png" /></a>
 
 # References
