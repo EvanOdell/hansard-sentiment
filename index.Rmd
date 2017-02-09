@@ -10,10 +10,21 @@ bibliography: references.bib
 runtime: shiny
 ---
 
+
+
+```{js}
+       if(self===top) { /* <- This detects that the page is not displayed in an iframe*/
+          document.getElementById('HideIfIframe').style.display = 'block';
+       }
+```
+
+
+
 #### [Frequency Analysis](#freq)
 ##### [Frequency Chart](#freq_chart)
 #### [Sentiment Analysis](#senti)
-##### [Sentiment Chart](#senti_chart)
+##### [Sentiment Charts](#senti_chart)
+#### [Notes](#notes)
 
 <!-- TO Do
 1. Write discussion
@@ -45,6 +56,7 @@ library(shinyjs)
 library(ggplot2)
 library(scales)
 library(grid)
+library(data.table)
 
 disability_phrase_groups <- readRDS("./data/disability_phrase_groups.rds")
 
@@ -418,7 +430,7 @@ options = list(height = 600)
 
 ### Government vs Opposition
 <a name="gov_dis"></a>
-These charts show the scores for all debate and disability debate, seperated between government and opposition, from 2000 <!-- Check date here!-->to the end of 2016.
+These charts show the scores for all debate and disability debate, seperated between government and opposition, from 1993 <!-- Check date here!-->to the end of 2016.
 
 ```{r, echo=FALSE}
 
@@ -480,8 +492,8 @@ ui <- fluidPage(
                 ),
          column(width = 4,
                      
-                      sliderInput("senti_year2", "Year", 2000, 2016,
-                                   value = c(2000, 2016), sep=""),
+                      sliderInput("senti_year2", "Year", 1993, 2016,
+                                   value = c(1993, 2016), sep=""),
                        actionButton("toggle", "Switch Chart Type")
              
                         )
@@ -545,7 +557,7 @@ p8 <- ggplot(senti_bar_data, aes(x=year, y=sentiment,
                                  fill = interaction(debate_type, government), width=.75))
 
 p8 + geom_bar(stat = "identity", position = "dodge") +
-  scale_x_discrete(name="Year", breaks=seq(2000,2020, by=2)) + 
+  scale_x_discrete(name="Year", breaks=seq(1990,2020, by=2)) + 
   scale_y_continuous(name="Sentiment Score") + 
   scale_fill_manual(values=gov_type_colour) + 
   theme(axis.text.x = element_text(angle = 30, hjust = 1), 
@@ -564,7 +576,7 @@ p8 + geom_bar(stat = "identity", position = "dodge") +
     p7 <- ggplot(senti_set, aes(x=year, y = sentiment, width=.75))
     
     p7 + geom_boxplot(aes(col = debate_type, fill=government)) +
-      scale_x_discrete(name="Year", breaks=seq(2000,2020, by=2)) + 
+      scale_x_discrete(name="Year", breaks=seq(1990,2020, by=2)) + 
       scale_y_continuous(name="Sentiment Score") + 
       scale_linetype_manual(values=debate_line) +
       scale_colour_manual(values=senti_colour) + 
@@ -585,7 +597,7 @@ options = list(height = 650)
 
 ### By Party
 <a name="party_dis"></a>
-These charts show the scores for all debate and disability debate, seperated between different parties, from 2000 <!-- Check date here!-->to the end of 2016. The Conservatives and Liberal Democrats are their own parties, and Labour and Labour Co-op MPs are grouped together as Labour. All other parties are grouped together as Other. <!-- As and when, add SDP to liberal democrats -->
+These charts show the scores for all debate and disability debate, seperated between different parties, from 1993 <!-- Check date here!-->to the end of 2016. The Conservatives and Liberal Democrats are their own parties, and Labour and Labour Co-op MPs are grouped together as Labour. All other parties are grouped together as Other. <!-- As and when, add SDP to liberal democrats -->
 
 ```{r, echo=FALSE}
 
@@ -649,8 +661,8 @@ shinyApp(
                 ),
          column(width = 4,
                      
-                      sliderInput("senti_year2", "Year", 2000, 2016,
-                                   value = c(2000, 2016), sep=""),
+                      sliderInput("senti_year2", "Year", 1993, 2016,
+                                   value = c(1993, 2016), sep=""),
                        actionButton("toggle", "Switch Chart Type")
                         )
             )
@@ -711,7 +723,7 @@ p7 + geom_smooth(size=1.5, formula=y ~ log(x)) +
                                      fill = interaction(debate_type, party_group), width=.75))
 
     p9 + geom_bar(stat = "identity", position = "dodge") +
-      scale_x_discrete(name="Year", breaks=seq(2000,2020, by=2)) + 
+      scale_x_discrete(name="Year", breaks=seq(1990,2020, by=2)) + 
       scale_y_continuous(name="Sentiment Score") + 
       scale_fill_manual(values=party_type_colour) + 
       facet_grid(.~year, switch = "x", scales = "free_x", space = "free_x") +
@@ -732,7 +744,7 @@ p7 + geom_smooth(size=1.5, formula=y ~ log(x)) +
     p7 <- ggplot(senti_set, aes(x=year, y = sentiment, width=.75))
     
     p7 + geom_boxplot(aes(col = debate_type, fill=party_group)) +
-      scale_x_discrete(name="Year", breaks=seq(2000,2020, by=2)) + 
+      scale_x_discrete(name="Year", breaks=seq(1990,2020, by=2)) + 
       scale_y_continuous(name="Sentiment Score") + 
       scale_linetype_manual(values=debate_line) +
       scale_colour_manual(values=senti_colour) + 
@@ -794,6 +806,8 @@ The ParlParse service does not record the party affiliation of MPs, or an ID num
 
 ## Phrases Used
 
+The list of disability-related words and phrases searched for in the Hansard:
+
 <a name="word_list"></a>
 
 * Disability Other
@@ -853,7 +867,8 @@ The ParlParse service does not record the party affiliation of MPs, or an ID num
 
 # Notes
 
-The source code for thsi app is available on [Github](https://github.com/EvanOdell/hansard-sentiment). For assistance, questions or comments please contact Evan Odell via [email](mailto:evan.odell@disabilityrightsuk.org) or [Twitter](https://twitter.com/evanodell), or raise an issue on Github.
+<a name="notes"></a>
+The source code for this app is available on [Github](https://github.com/EvanOdell/hansard-sentiment). For assistance, questions or comments please contact [Evan Odell](http://evanodell.com) via [email](mailto:evan.odell@disabilityrightsuk.org) or [Twitter](https://twitter.com/evanodell), or raise an issue on Github.
     
 The data used in this app was retrieved from the [ParlParse](https://www.theyworkforyou.com/pwdata/scrapedxml/) service operated by [MySociety](https://www.mysociety.org/). <!-- link to dataset -->
 

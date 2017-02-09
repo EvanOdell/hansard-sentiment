@@ -1,261 +1,35 @@
-
-
-#### SENTI PREP and Creation
-
-library(readr)
-library(magrittr)
-library(plyr)
-library(dplyr)
-library(tm)
-library(tidytext)
-library(data.table)
-library(syuzhet)
-library(sentimentr)
-
-
-
-#write_rds(debate, "debate.rds")
-
-
-system.time(
-  debate <- readRDS("debate.rds")
-)
-
-debate_no_na <- subset(debate, speakername != "NA")
-
-summary(debate_no_na)
-
-#Import the matched files
-
-#names(debate)
-
-Matched2000_2009 <- read_csv("~/Documents/hansard1936-2016/Matched2000-2009.csv")
-
-Matched2010_2016 <- read_csv("~/Documents/hansard1936-2016/Matched2010-2016.csv")
-
-Matched2000_2009$speakerid <- as.character(Matched2000_2009$speakerid)
-
-Matched2000_2009$proper_id <- as.character(Matched2000_2009$proper_id)
-
-Matched2010_2016$speakerid <- as.character(Matched2010_2016$speakerid)
-
-Matched2010_2016$proper_id <- as.character(Matched2010_2016$proper_id)
-
-match <- bind_rows(Matched2000_2009,Matched2010_2016)
-
-rm(Matched2000_2009,Matched2010_2016)
-
-system.time(
-  debate2 <- debate_no_na %>% 
-    left_join(match, by= "id")
-)
-
-
-
-#system.time(
-#  write_csv(debate2, "debate2.csv")
-#)
-
-
-system.time(
-  hansard_sample <- debate2[sample(nrow(debate2), (nrow(debate2)/100)), ]
-  #hansard_sample <- debate2[sample(nrow(debate2), (nrow(debate2)/20)), ]
-)
-
-
-
-write_rds(hansard_sample, "hansard_samples.rds")
-
-rm(debate, debate2, debate_no_na)
-
-#disability_sample <- readRDS("disability_sample.rds")
-
-#hansard_sample <- readRDS("hansard_sample.rds")
-
-
-debate_sentences <- hansard_sample %>%
-  select(speech, id, speech_date, name, proper_id, party, party_group) %>% 
-  unnest_tokens(sentence, speech, token = "regex", pattern = "\\.")
-debate_sentences$debate_type <- "All Debate"
-
-bing <- as_key(syuzhet:::bing)
-afinn <- as_key(syuzhet:::afinn)
-nrc <- data.frame(
-  words = rownames(syuzhet:::nrc),
-  polarity = syuzhet:::nrc[, "positive"] - syuzhet:::nrc[, "negative"],
-  stringsAsFactors = FALSE
-) %>%
-{as_key(.[.[["polarity"]] != 0, ])}
-
-
-debate_sentences <- setDT(debate_sentences, keep.rownames = TRUE)[]
-names(debate_sentences)[1] <- "element_id"
-
-write_rds(debate_sentences, "debate_sentences.rds")
-
-#debate_afinn <- debate_afinn[,c("id","afinn_vector",)]
-
-system.time(
-  afinn_vector <- sentiment_by(debate_sentences$sentence, by = NULL, group.names, afinn)
-)
-
-system.time(
-  nrc_vector <- sentiment_by(debate_sentences$sentence, by = NULL, group.names, nrc)
-)
-
-#write_rds(debate_sentences, "debate_sentences.rds")
-
-system.time(
-  bing_vector <- sentiment_by(debate_sentences$sentence, by = NULL, group.names, bing)
-)
-
-system.time(
-  sentiword_vector <- sentiment_by(debate_sentences$sentence, by = NULL, group.names, lexicon::hash_sentiword)
-)
-
-system.time(
-  hu_vector <- sentiment_by(debate_sentences$sentence, by = NULL, group.names)
-)
-
-
-names(afinn_vector)[4] <- "afinn_sentiment"
-
-names(nrc_vector)[4] <- "nrc_sentiment"
-
-names(bing_vector)[4] <- "bing_sentiment"
-
-names(sentiword_vector)[4] <- "sentiword_sentiment"
-
-names(hu_vector)[4] <- "hu_sentiment"
-
-hu_vector <- hu_vector[,c("hu_sentiment")]
-
-sentiword_vector <- sentiword_vector[,c("sentiword_sentiment")]
-
-bing_vector <- bing_vector[,c("bing_sentiment")]
-
-nrc_vector <- nrc_vector[,c("nrc_sentiment")]
-
-senti_vectors <- cbind(debate_sentences, afinn_vector, hu_vector, sentiword_vector, nrc_vector, bing_vector)
-
-summary(senti_vectors)
-
-
-### For disability sample party group, load table, create csv of just id and party, create party group, load c
-
-disability_sample <- read_csv("~/Documents/hansard1936-2016/disability_sample.csv")
-
-#disability_check <- disability_sample[c("id", "party")]
-
-#write_csv(disability_check, "disability_check.csv")
-
-disability_check <- read_csv("~/Documents/hansard1936-2016/disability_check.csv")
-
-disability_check$party <- NULL
-
-system.time(
-  disability_sample <- disability_sample %>% 
-    left_join(disability_check, by= "id")
-)
-
-
-disability_sentences <- disability_sample %>%
-  select(speech, id, speech_date, name, proper_id, party, party_group) %>% 
-  unnest_tokens(sentence, speech, token = "regex", pattern = "\\.")
-disability_sentences$debate_type <- "Disability"
-
-disability_sentences <- setDT(disability_sentences, keep.rownames = TRUE)[]
-names(disability_sentences)[1] <- "element_id"
-
-system.time(
-  afinn_vector_dis <- sentiment_by(disability_sentences$sentence, by = NULL, group.names, afinn)
-)
-
-system.time(
-  nrc_vector_dis <- sentiment_by(disability_sentences$sentence, by = NULL, group.names, nrc)
-)
-
-
-### Re-Run
-Sys.setlocale(locale="C")
-system.time(
-  bing_vector_dis <- sentiment_by(disability_sentences$sentence, by = NULL, group.names, bing)
-)
-
-system.time(
-  sentiword_vector_dis <- sentiment_by(disability_sentences$sentence, by = NULL, group.names, lexicon::hash_sentiword)
-)
-
-system.time(
-  hu_vector_dis <- sentiment_by(disability_sentences$sentence, by = NULL, group.names)
-)
-
-
-names(afinn_vector_dis)[4] <- "afinn_sentiment"
-
-names(nrc_vector_dis)[4] <- "nrc_sentiment"
-
-names(bing_vector_dis)[4] <- "bing_sentiment"###Still needs to run
-
-names(sentiword_vector_dis)[4] <- "sentiword_sentiment"
-
-names(hu_vector_dis)[4] <- "hu_sentiment"
-
-hu_vector_dis <- hu_vector_dis[,c("hu_sentiment")]
-
-sentiword_vector_dis <- sentiword_vector_dis[,c("sentiword_sentiment")]
-
-bing_vector_dis <- bing_vector_dis[,c("bing_sentiment")]###Still needs to run
-
-nrc_vector_dis <- nrc_vector_dis[,c("nrc_sentiment")]
-
-senti_vectors_dis <- cbind(disability_sentences, afinn_vector_dis,
-                           hu_vector_dis, sentiword_vector_dis,
-                           nrc_vector_dis, bing_vector_dis)
-
-summary(senti_vectors_dis)
-summary(senti_vectors)
-
-names(senti_vectors)
-names(senti_vectors_dis)
-
-senti_combined <- rbind(senti_vectors, senti_vectors_dis)
-
-names(senti_combined)[10] <- "element_id2"
-
-summary(senti_combined)
-
-senti_combined$party_group [is.na(senti_combined$party_group)] <- "Other"
-
-write_rds(senti_combined, "senti_combined.rds")
+#### Include stuff from laptop here
 
 
 library(lubridate)
 library(reshape2)
 library(magrittr)
 library(readr)
+library(data.table)
 #senti_combined <- readRDS("./data/senti_combined.rds")
 
-senti_combined <- readRDS("senti_combined.rds")
+senti_combined <- readRDS("./data/senti_combined_full.rds")
 
 senti_combined$party <- as.factor(senti_combined$party)
 
 senti_combined$party_group <- as.factor(senti_combined$party_group)
 
-senti_combined$party_group [is.na(senti_combined$party_group )] <- "Other"
+## Recoding senti_combined$party_group into senti_combined$party_group
+senti_combined$party_group <- as.character(senti_combined$party_group)
+senti_combined$party_group[senti_combined$party_group == "#N/A"] <- "Other"
+senti_combined$party_group[senti_combined$party_group == "#REF!"] <- "Other"
+senti_combined$party_group <- factor(senti_combined$party_group)
 
-senti_combined$sentences <- NULL
+summary(senti_combined)
+
+
+senti_combined$element_id <- NULL
 senti_combined$id <- NULL
-senti_combined$colnum <- NULL
-senti_combined$time <- NULL
-senti_combined$url <- NULL
-senti_combined$speaker <- NULL
 senti_combined$proper_id <- NULL
+senti_combined$proper_name <- NULL
 senti_combined$party <- NULL
 senti_combined$sentence <- NULL
-senti_combined$element_id <- NULL
 senti_combined$element_id2 <- NULL
-senti_combined$name <- NULL
 senti_combined$word_count <- NULL
 senti_combined$sd <- NULL
 
@@ -446,12 +220,17 @@ rm(Blair1, Blair2, Blair3, Brown, Cameron1, Cameron2, May, Baldwin2,
    Wilson1, Wilson2, Heath, Wilson3, Callaghan,Thatcher1, Thatcher2,
    Thatcher3, Major1, Major2, senti_combined2, senti_combined3)
 
+names(senti_combined)
+
 names(senti_combined)[5] <- "sentiment"
 names(senti_combined)[4] <- "senti_type"
 
 senti_combined$ministry <- as.factor(senti_combined$ministry)
 
 senti_combined$government <- as.factor(senti_combined$government)
+
+summary(senti_combined)
+
 
 all_average <- tapply(senti_combined$sentiment, list(senti_combined$debate_type, 
                                                  senti_combined$year, 
@@ -518,6 +297,15 @@ names(government_average)[5] <- "sentiment"
 summary(government_average)
 
 summary(senti_combined)
+
+party_average <- data.table(party_average)
+
+all_average <- data.table(all_average)
+
+government_average <- data.table(government_average)
+
+senti_combined <- data.table(senti_combined)
+
 
 write_rds(party_average, "./data/party_average.rds")
 

@@ -12,96 +12,98 @@ library(xts)
 library(data.table)
 library(RColorBrewer)
 
-names(disability_test2)[1] <- 'proper_id'
+disability_sample_full <- readRDS("./data/disability_sample_full.rds")
 
-summary(disability_test2)
+names(disability_sample_full)[1] <- 'proper_id'
 
-disability_test2$speakername <- as.factor(disability_test2$speakername)
-disability_test2$Reason <- as.factor(disability_test2$Reason)
+summary(disability_sample_full)
 
-disability_test2$status_id <- as.factor(disability_test2$status_id)
-disability_test2$CurrentStatus <- as.factor(disability_test2$CurrentStatus)
+disability_sample_full$speakername <- as.factor(disability_sample_full$speakername)
+disability_sample_full$Reason <- as.factor(disability_sample_full$Reason)
 
-disability_test2$Name <- as.factor(disability_test2$Name)
-disability_test2$MemberFrom <- as.factor(disability_test2$MemberFrom)
+disability_sample_full$status_id <- as.factor(disability_sample_full$status_id)
+disability_sample_full$CurrentStatus <- as.factor(disability_sample_full$CurrentStatus)
 
-disability_test2$House <- as.factor(disability_test2$House)
-disability_test2$party_id <- as.factor(disability_test2$party_id)
+disability_sample_full$Name <- as.factor(disability_sample_full$Name)
+disability_sample_full$MemberFrom <- as.factor(disability_sample_full$MemberFrom)
 
-disability_test2$party <- as.factor(disability_test2$party)
-disability_test2$Party_Name <- as.factor(disability_test2$Party_Name)
+disability_sample_full$House <- as.factor(disability_sample_full$House)
+disability_sample_full$party_id <- as.factor(disability_sample_full$party_id)
 
-disability_test2$Gender <- as.factor(disability_test2$Gender)
-disability_test2$DisplayAs <- as.factor(disability_test2$DisplayAs)
+disability_sample_full$party <- as.factor(disability_sample_full$party)
+disability_sample_full$Party_Name <- as.factor(disability_sample_full$Party_Name)
 
-disability_test2$ListAs <- as.factor(disability_test2$ListAs)
-disability_test2$time <- as.hms(disability_test2$time)
-disability_test2$Date <- as.Date(disability_test2$Date)
+disability_sample_full$Gender <- as.factor(disability_sample_full$Gender)
+disability_sample_full$DisplayAs <- as.factor(disability_sample_full$DisplayAs)
 
-class(disability_test2$date)
+disability_sample_full$ListAs <- as.factor(disability_sample_full$ListAs)
+disability_sample_full$time <- as.hms(disability_sample_full$time)
+disability_sample_full$Date <- as.Date(disability_sample_full$Date)
 
-
-disability_test2$count_dis_person <- str_count(disability_test2$speech, 'disabled person') +
-  str_count(disability_test2$speech, 'disabled person')
-
-disability_test2$count_dis_child <- str_count(disability_test2$speech, 'disabled child')
-
-disability_test2$count_dis_people_with <- str_count(disability_test2$speech, 'person with a disability') +
-  str_count(disability_test2$speech, 'people with a disability') +
-  str_count(disability_test2$speech, 'people with disabilities') +
-  str_count(disability_test2$speech, 'person with disabilities')
-
-disability_test2$count_dis_women <- str_count(disability_test2$speech, 'disabled women') + 
-  str_count(disability_test2$speech, 'disabled woman')
-
-disability_test2$count_dis_men <- str_count(disability_test2$speech, 'disabled men') + 
-  str_count(disability_test2$speech, 'disabled man')
-
-disability_test2$count_dis_child_with <- str_count(disability_test2$speech, 'children with disabilities') +
-  str_count(disability_test2$speech, 'child with disabilities') +
-  str_count(disability_test2$speech, 'children with a disability') +
-  str_count(disability_test2$speech, 'child with a disability')
-
-disability_test2$count_dis_any_with <- str_count(disability_test2$speech, 'with disabilities') + 
-  str_count(disability_test2$speech, 'with a disability')
-
-disability_test2$count_ind_living <- str_count(disability_test2$speech, 'independent living')
-
-disability_test2$count_wheelchair <- str_count(disability_test2$speech, 'wheelchair')
-
-disability_test2$count_paralympic <- str_count(disability_test2$speech, 'paralympic')
-
-disability_test2$count_afflict <- str_count(disability_test2$speech, 'afflicted')
-
-disability_test2$count_spastic <- str_count(disability_test2$speech, 'spastic')
-
-disability_test2$count_sub_normal <- str_count(disability_test2$speech, 'sub-normal')+
-str_count(disability_test2$speech, 'sub normal') +
-str_count(disability_test2$speech, 'subnormal')
-
-disability_test2$count_amputee <- str_count(disability_test2$speech, 'amputee')
-
-disability_test2$count_retard <- str_count(disability_test2$speech, 'retard')
-
-disability_test2$count_cripple <- str_count(disability_test2$speech, 'cripple')
-
-disability_test2$count_dis_with_any_else <- disability_test2$count_dis_any_with - 
-  (disability_test2$count_dis_people_with + disability_test2$count_dis_child_with)
-
-disability_test2$count_disability <- str_count(disability_test2$speech, 'disability')
-
-disability_test2$count_disability <- disability_test2$count_disability  - str_count(disability_test2$speech, 'with a disability')
-
-disability_test2$disabled_blank <- disability_test2$count_dis_person + disability_test2$count_dis_child + 
-                                  disability_test2$count_dis_women + disability_test2$count_dis_men
-
-disability_test2$with_disability <- disability_test2$count_dis_people_with + disability_test2$count_dis_child_with +
-                                  disability_test2$count_dis_with_any_else
+class(disability_sample_full$date)
 
 
-disability_test2$combined_disability <- disability_test2$with_disability + disability_test2$disabled_blank
+disability_sample_full$count_dis_person <- str_count(disability_sample_full$speech, 'disabled person') +
+  str_count(disability_sample_full$speech, 'disabled person')
 
-summary(disability_test2)
+disability_sample_full$count_dis_child <- str_count(disability_sample_full$speech, 'disabled child')
+
+disability_sample_full$count_dis_people_with <- str_count(disability_sample_full$speech, 'person with a disability') +
+  str_count(disability_sample_full$speech, 'people with a disability') +
+  str_count(disability_sample_full$speech, 'people with disabilities') +
+  str_count(disability_sample_full$speech, 'person with disabilities')
+
+disability_sample_full$count_dis_women <- str_count(disability_sample_full$speech, 'disabled women') + 
+  str_count(disability_sample_full$speech, 'disabled woman')
+
+disability_sample_full$count_dis_men <- str_count(disability_sample_full$speech, 'disabled men') + 
+  str_count(disability_sample_full$speech, 'disabled man')
+
+disability_sample_full$count_dis_child_with <- str_count(disability_sample_full$speech, 'children with disabilities') +
+  str_count(disability_sample_full$speech, 'child with disabilities') +
+  str_count(disability_sample_full$speech, 'children with a disability') +
+  str_count(disability_sample_full$speech, 'child with a disability')
+
+disability_sample_full$count_dis_any_with <- str_count(disability_sample_full$speech, 'with disabilities') + 
+  str_count(disability_sample_full$speech, 'with a disability')
+
+disability_sample_full$count_ind_living <- str_count(disability_sample_full$speech, 'independent living')
+
+disability_sample_full$count_wheelchair <- str_count(disability_sample_full$speech, 'wheelchair')
+
+disability_sample_full$count_paralympic <- str_count(disability_sample_full$speech, 'paralympic')
+
+disability_sample_full$count_afflict <- str_count(disability_sample_full$speech, 'afflicted')
+
+disability_sample_full$count_spastic <- str_count(disability_sample_full$speech, 'spastic')
+
+disability_sample_full$count_sub_normal <- str_count(disability_sample_full$speech, 'sub-normal')+
+str_count(disability_sample_full$speech, 'sub normal') +
+str_count(disability_sample_full$speech, 'subnormal')
+
+disability_sample_full$count_amputee <- str_count(disability_sample_full$speech, 'amputee')
+
+disability_sample_full$count_retard <- str_count(disability_sample_full$speech, 'retard')
+
+disability_sample_full$count_cripple <- str_count(disability_sample_full$speech, 'cripple')
+
+disability_sample_full$count_dis_with_any_else <- disability_sample_full$count_dis_any_with - 
+  (disability_sample_full$count_dis_people_with + disability_sample_full$count_dis_child_with)
+
+disability_sample_full$count_disability <- str_count(disability_sample_full$speech, 'disability')
+
+disability_sample_full$count_disability <- disability_sample_full$count_disability  - str_count(disability_sample_full$speech, 'with a disability')
+
+disability_sample_full$disabled_blank <- disability_sample_full$count_dis_person + disability_sample_full$count_dis_child + 
+                                  disability_sample_full$count_dis_women + disability_sample_full$count_dis_men
+
+disability_sample_full$with_disability <- disability_sample_full$count_dis_people_with + disability_sample_full$count_dis_child_with +
+                                  disability_sample_full$count_dis_with_any_else
+
+
+disability_sample_full$combined_disability <- disability_sample_full$with_disability + disability_sample_full$disabled_blank
+
+summary(disability_sample_full)
 
 agg_data2 <- aggregate(cbind(count_disability, count_dis_person, count_dis_child,
                              count_dis_people_with, count_dis_women, count_dis_men, 
@@ -110,7 +112,7 @@ agg_data2 <- aggregate(cbind(count_disability, count_dis_person, count_dis_child
                              count_sub_normal,count_amputee,count_retard,count_cripple,
                              count_dis_with_any_else,with_disability,disabled_blank,
                              combined_disability)~date, 
-                       data=disability_test2, FUN=sum)
+                       data=disability_sample_full, FUN=sum)
 
 base_breaks <- function(n = 10){
   function(x) {
