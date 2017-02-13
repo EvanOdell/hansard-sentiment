@@ -1,4 +1,5 @@
 
+library(readr)
 library(plyr)
 library(dplyr)
 library(ggplot2)
@@ -12,36 +13,21 @@ library(xts)
 library(data.table)
 library(RColorBrewer)
 
-disability_sample_full <- readRDS("./data/disability_sample_full.rds")
 
-names(disability_sample_full)[1] <- 'proper_id'
+# Disability Discussion Frequency -----------------------------------------
+
+
+disability_sample_full <- read_rds("./data/disability_sample_full.rds")
+
+dates <- read_csv("./data/dates.csv")
+
+names(disability_sample_full)
 
 summary(disability_sample_full)
 
-disability_sample_full$speakername <- as.factor(disability_sample_full$speakername)
-disability_sample_full$Reason <- as.factor(disability_sample_full$Reason)
-
-disability_sample_full$status_id <- as.factor(disability_sample_full$status_id)
-disability_sample_full$CurrentStatus <- as.factor(disability_sample_full$CurrentStatus)
-
-disability_sample_full$Name <- as.factor(disability_sample_full$Name)
-disability_sample_full$MemberFrom <- as.factor(disability_sample_full$MemberFrom)
-
-disability_sample_full$House <- as.factor(disability_sample_full$House)
-disability_sample_full$party_id <- as.factor(disability_sample_full$party_id)
-
+disability_sample_full$proper_name <- as.factor(disability_sample_full$proper_name)
 disability_sample_full$party <- as.factor(disability_sample_full$party)
-disability_sample_full$Party_Name <- as.factor(disability_sample_full$Party_Name)
-
-disability_sample_full$Gender <- as.factor(disability_sample_full$Gender)
-disability_sample_full$DisplayAs <- as.factor(disability_sample_full$DisplayAs)
-
-disability_sample_full$ListAs <- as.factor(disability_sample_full$ListAs)
-disability_sample_full$time <- as.hms(disability_sample_full$time)
-disability_sample_full$Date <- as.Date(disability_sample_full$Date)
-
-class(disability_sample_full$date)
-
+disability_sample_full$party_group <- as.factor(disability_sample_full$party_group)
 
 disability_sample_full$count_dis_person <- str_count(disability_sample_full$speech, 'disabled person') +
   str_count(disability_sample_full$speech, 'disabled person')
@@ -111,7 +97,7 @@ agg_data2 <- aggregate(cbind(count_disability, count_dis_person, count_dis_child
                              count_wheelchair, count_paralympic,count_afflict, count_spastic,
                              count_sub_normal,count_amputee,count_retard,count_cripple,
                              count_dis_with_any_else,with_disability,disabled_blank,
-                             combined_disability)~date, 
+                             combined_disability)~speech_date, 
                        data=disability_sample_full, FUN=sum)
 
 base_breaks <- function(n = 10){
@@ -122,44 +108,45 @@ base_breaks <- function(n = 10){
 
 summary(agg_data2)
 
+
 ##Making ZOOs
-disabled_blank_zoo <- zoo(agg_data2$disabled_blank, order.by=agg_data2$date)
+disabled_blank_zoo <- zoo(agg_data2$disabled_blank, order.by=agg_data2$speech_date)
 
-with_disability_zoo <- zoo(agg_data2$with_disability, order.by=agg_data2$date)
+with_disability_zoo <- zoo(agg_data2$with_disability, order.by=agg_data2$speech_date)
 
-combined_disability_zoo <- zoo(agg_data2$combined_disability, order.by=agg_data2$date)
+combined_disability_zoo <- zoo(agg_data2$combined_disability, order.by=agg_data2$speech_date)
 
-disability_zoo <- zoo(agg_data2$count_disability, order.by=agg_data2$date)
+disability_zoo <- zoo(agg_data2$count_disability, order.by=agg_data2$speech_date)
 
-dis_person_zoo <- zoo(agg_data2$count_dis_person, order.by=agg_data2$date)
+dis_person_zoo <- zoo(agg_data2$count_dis_person, order.by=agg_data2$speech_date)
 
-dis_child_zoo <- zoo(agg_data2$count_dis_child, order.by=agg_data2$date)
+dis_child_zoo <- zoo(agg_data2$count_dis_child, order.by=agg_data2$speech_date)
 
-dis_people_with_zoo <- zoo(agg_data2$count_dis_people_with, order.by=agg_data2$date)
+dis_people_with_zoo <- zoo(agg_data2$count_dis_people_with, order.by=agg_data2$speech_date)
 
-dis_women_zoo <- zoo(agg_data2$count_dis_women, order.by=agg_data2$date)
+dis_women_zoo <- zoo(agg_data2$count_dis_women, order.by=agg_data2$speech_date)
 
-dis_men_zoo <- zoo(agg_data2$count_dis_men, order.by=agg_data2$date)
+dis_men_zoo <- zoo(agg_data2$count_dis_men, order.by=agg_data2$speech_date)
 
-dis_child_with_zoo <- zoo(agg_data2$count_dis_child_with, order.by=agg_data2$date)
+dis_child_with_zoo <- zoo(agg_data2$count_dis_child_with, order.by=agg_data2$speech_date)
 
-dis_any_with_zoo <- zoo(agg_data2$count_dis_any_with, order.by=agg_data2$date)
+dis_any_with_zoo <- zoo(agg_data2$count_dis_any_with, order.by=agg_data2$speech_date)
 
-ind_living_zoo <- zoo(agg_data2$count_ind_living, order.by=agg_data2$date)
+ind_living_zoo <- zoo(agg_data2$count_ind_living, order.by=agg_data2$speech_date)
 
-wheelchair_zoo <- zoo(agg_data2$count_wheelchair, order.by=agg_data2$date)
+wheelchair_zoo <- zoo(agg_data2$count_wheelchair, order.by=agg_data2$speech_date)
 
-paralympic_zoo <- zoo(agg_data2$count_paralympic, order.by=agg_data2$date)
+paralympic_zoo <- zoo(agg_data2$count_paralympic, order.by=agg_data2$speech_date)
 
-spastic_zoo <- zoo(agg_data2$count_spastic, order.by=agg_data2$date)
+spastic_zoo <- zoo(agg_data2$count_spastic, order.by=agg_data2$speech_date)
 
-sub_normal_zoo <- zoo(agg_data2$count_sub_normal, order.by=agg_data2$date)
+sub_normal_zoo <- zoo(agg_data2$count_sub_normal, order.by=agg_data2$speech_date)
 
-amputee_zoo <- zoo(agg_data2$count_amputee, order.by=agg_data2$date)
+amputee_zoo <- zoo(agg_data2$count_amputee, order.by=agg_data2$speech_date)
 
-retard_zoo <- zoo(agg_data2$count_retard, order.by=agg_data2$date)
+retard_zoo <- zoo(agg_data2$count_retard, order.by=agg_data2$speech_date)
 
-dis_with_any_else_zoo <- zoo(agg_data2$count_dis_with_any_else, order.by=agg_data2$date)
+dis_with_any_else_zoo <- zoo(agg_data2$count_dis_with_any_else, order.by=agg_data2$speech_date)
 
 all_zoo <- cbind(disability_zoo,dis_person_zoo,dis_child_zoo,dis_people_with_zoo,
                  dis_women_zoo,dis_men_zoo ,dis_child_with_zoo,ind_living_zoo,
@@ -184,15 +171,15 @@ all_zoo_test <- as.data.frame(all_zoo)
 
 setDT(all_zoo_test, keep.rownames = TRUE)[]
 
-names(all_zoo_test)[1] <- 'Date'
+names(all_zoo_test)[1] <- 'speech_date'
 
-all_zoo_test$Date <- as.Date(all_zoo_test$Date)
+all_zoo_test$speech_date <- as.Date(all_zoo_test$speech_date)
 
 summary(all_zoo_test)
 
 all_zoo_test$sitting<-0
 
-all_zoo_test$sitting[all_zoo_test$Date %in% dates$Date] <- 1
+all_zoo_test$sitting[all_zoo_test$speech_date %in% dates$Date] <- 1
 
 all_zoo_test$sitting <- as.logical(all_zoo_test$sitting)
 
@@ -296,8 +283,11 @@ p3 + geom_smooth(aes(y=value, linetype = variable, col=variable), size=1.5, form
 
 summary(all_zoo_gg)
 
-saveRDS(all_zoo_gg, "all_zoo_gg.rds")
+write_rds(all_zoo_gg, "./data/disability_phrase_groups.rds")
 
+
+
+# Disability vs Disabled --------------------------------------------------
 
 disability_vs_disabled_zoo <- cbind(disabled_blank_zoo,with_disability_zoo,combined_disability_zoo)
 

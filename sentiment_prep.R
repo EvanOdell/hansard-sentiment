@@ -1,6 +1,379 @@
 #### Include stuff from laptop here
 
 
+# Sorting -----------------------------------------------------------------
+
+
+#### SENTI PREP and Creation
+
+library(readr)
+library(magrittr)
+library(plyr)
+library(dplyr)
+#library(tm)
+library(tidytext)
+library(data.table)
+library(syuzhet)
+library(sentimentr)
+
+### Include age and gender in this too
+
+
+#write_rds(debate, "debate.rds")
+
+system.time(
+  debate <- readRDS("debate.rds")
+)
+
+debate$cluster <- paste0(debate$hansard_membership_id,
+                         debate$speakerid,
+                         debate$speakername)
+
+#system.time(
+#  write_csv(debate, "debate2.csv")
+#)
+
+
+#summary(debate_no_na)
+
+#Import the matched files
+
+#names(debate)
+
+Matched2000_2009 <- read_csv("~/Documents/hansard1936-2016/Matched2000-2009.csv")
+
+Matched2010_2016 <- read_csv("~/Documents/hansard1936-2016/Matched2010-2016.csv")
+
+Matched1992_1999 <- read_csv("~/Documents/hansard1936-2016/Matched1992-1999.csv", 
+                             col_types = cols(hansard_membership_id = col_character()))
+
+match_thing <- bind_rows(Matched1992_1999, Matched2000_2009, Matched2010_2016)
+
+rm(Matched1992_1999, Matched2000_2009,Matched2010_2016)
+
+system.time(
+  debate2 <- debate %>% 
+    left_join(match_thing, by= c("id","cluster"))
+)
+
+summary(debate2)
+
+View(debate2)
+
+### Conditionally remove blank names from 1992 and afterwards
+
+#debate2$unfilled[is.na(debate2$unfilled)] <- FALSE
+
+#debate2<-debate2[!(debate2$year>=1992 & debate2$unfilled==TRUE),]
+
+rm(debate)
+
+system.time(
+  disability_sample <- read_csv("disability_sample.csv")
+)
+
+disability_sample$cluster <- paste0(disability_sample$hansard_membership_id,
+                                    disability_sample$speakerid,
+                                    disability_sample$speakername)
+
+system.time(
+  disability_sample <- disability_sample %>%
+    left_join(match_thing, by= c("id","cluster"))
+)
+
+rm(match_thing)
+#system.time(
+#  write_csv(debate2, "debate2.csv")
+#)
+
+
+# Floor Crossings ---------------------------------------------------------
+
+
+
+switch_mps <- read_csv("~/Documents/hansard1936-2016/Switching MPs.csv", 
+                       col_types = cols(crossing_one_date = col_date(format = "%d/%m/%Y"), 
+                                        crossing_three_date = col_date(format = "%d/%m/%Y"), 
+                                        crossing_two_date = col_date(format = "%d/%m/%Y"), 
+                                        proper_id = col_character()))
+
+system.time(
+  debate2 <- debate2 %>% 
+    left_join(switch_mps, by= "proper_id")
+)
+
+debate2$switch_match <- (debate2$proper_id %in% switch_mps$proper_id)
+
+debate2$crossing_one_from[is.na(debate2$crossing_three_date)] <- FALSE
+debate2$crossing_two_from[is.na(debate2$crossing_three_date)] <- FALSE
+debate2$crossing_three_from[is.na(debate2$crossing_three_date)] <- FALSE
+
+debate2$party <- as.factor(debate2$party)
+
+debate2$party <- as.character(debate2$party)
+
+debate2$party2 <- ifelse(debate2$switch_match==FALSE, debate2$party, 
+                         ifelse(debate2$crossing_one_date >= debate2$speech_date | 
+                                  debate2$crossing_two_date <= debate2$speech_date,
+                                debate2$crossing_one_to, debate2$party))
+
+debate2$party3 <- ifelse(debate2$switch_match==FALSE, debate2$party, 
+                         ifelse(debate2$crossing_two_date >= debate2$speech_date | 
+                                  debate2$crossing_three_date <= debate2$speech_date,
+                                debate2$crossing_two_to, debate2$party))
+
+
+debate2$party4 <- ifelse(debate2$switch_match==FALSE, debate2$party,
+                         ifelse(debate2$crossing_three_date >= debate2$speech_date,
+                                debate2$crossing_three_to, debate2$party))
+
+debate2$party <- as.factor(debate2$party)
+debate2$party2 <- as.factor(debate2$party2)
+debate2$party3 <- as.factor(debate2$party3)
+debate2$party4 <- as.factor(debate2$party4)
+
+debate2$party <- NULL
+
+debate2$party <- debate2$party4
+
+debate2$party_group <- ifelse(debate2$party=="Labour" | debate2$party=="Labour (Co-op)", "Labour",
+                              ifelse(debate2$party=="Conservative", "Conservative", 
+                                     ifelse(debate2$party=="Liberal Democrat", "Liberal Democrat", "Other")))
+
+names(debate2)[names(debate2)=="proper_name.x"] <- "proper_name"
+
+
+debate2 <-debate2[,c("speech", "id", "speech_date", "proper_name", "proper_id", "party", "party_group")]
+
+summary(debate2)
+
+debate2$party_group <- as.factor(debate2$party_group)
+
+system.time(
+  hansard_sample <- debate2[sample(nrow(debate2), (nrow(debate2)/33)), ]
+  #hansard_sample <- debate2[sample(nrow(debate2), (nrow(debate2)/20)), ]
+)
+
+rm(debate2)
+
+summary(hansard_sample)
+
+write_rds(hansard_sample, "hansard_sample.rds")
+
+system.time(
+  disability_sample <- disability_sample %>% 
+    left_join(switch_mps, by= "proper_id")
+)
+
+disability_sample$switch_match <- (disability_sample$proper_id %in% switch_mps$proper_id)
+
+disability_sample$crossing_one_from[is.na(disability_sample$crossing_three_date)] <- FALSE
+disability_sample$crossing_two_from[is.na(disability_sample$crossing_three_date)] <- FALSE
+disability_sample$crossing_three_from[is.na(disability_sample$crossing_three_date)] <- FALSE
+
+summary(switch_mps)
+
+disability_sample$party <- as.factor(disability_sample$party)
+
+summary(disability_sample)
+
+disability_sample$party <- as.character(disability_sample$party)
+
+disability_sample$party2 <- ifelse(disability_sample$switch_match==FALSE, disability_sample$party, 
+                                   ifelse(disability_sample$crossing_one_date >= disability_sample$speech_date | 
+                                            disability_sample$crossing_two_date <= disability_sample$speech_date,
+                                          disability_sample$crossing_one_to, disability_sample$party))
+
+disability_sample$party3 <- ifelse(disability_sample$switch_match==FALSE, disability_sample$party, 
+                                   ifelse(disability_sample$crossing_two_date >= disability_sample$speech_date | 
+                                            disability_sample$crossing_three_date <= disability_sample$speech_date,
+                                          disability_sample$crossing_two_to, disability_sample$party))
+
+
+disability_sample$party4 <- ifelse(disability_sample$switch_match==FALSE, disability_sample$party,
+                                   ifelse(disability_sample$crossing_three_date >= disability_sample$speech_date,
+                                          disability_sample$crossing_three_to, disability_sample$party))
+
+disability_sample$party <- as.factor(disability_sample$party)
+disability_sample$party2 <- as.factor(disability_sample$party2)
+disability_sample$party3 <- as.factor(disability_sample$party3)
+disability_sample$party4 <- as.factor(disability_sample$party4)
+
+disability_sample$party <- NULL
+
+disability_sample$party <- disability_sample$party4
+
+disability_sample$party_group <- ifelse(disability_sample$party=="Labour" | disability_sample$party=="Labour (Co-op)", "Labour",
+                                        ifelse(disability_sample$party=="Conservative", "Conservative", 
+                                               ifelse(disability_sample$party=="Liberal Democrat", "Liberal Democrat", "Other")))
+
+names(disability_sample)[names(disability_sample)=="proper_name.x"] <- "proper_name"
+
+disability_sample <-disability_sample[,c("speech", "id", "speech_date", "proper_name", "proper_id", "party", "party_group")]
+
+summary(disability_sample)
+
+disability_sample$party_group <- as.factor(disability_sample$party_group)
+
+write_rds(disability_sample, "disability_sample.rds")
+
+disability_sample <- read_rds("disability_sample.rds")
+
+hansard_sample <- read_rds("hansard_sample.rds")
+
+rm(switch_mps)
+
+
+# Sentiment Labelling -----------------------------------------------------
+
+
+
+bing <- as_key(syuzhet:::bing)
+afinn <- as_key(syuzhet:::afinn)
+nrc <- data.frame(
+  words = rownames(syuzhet:::nrc),
+  polarity = syuzhet:::nrc[, "positive"] - syuzhet:::nrc[, "negative"],
+  stringsAsFactors = FALSE
+) %>%
+{as_key(.[.[["polarity"]] != 0, ])}
+
+debate_sentences <- hansard_sample %>%
+  select(speech, id, speech_date, proper_name, proper_id, party, party_group) %>% 
+  unnest_tokens(sentence, speech, token = "sentences")
+debate_sentences$debate_type <- "All Debate"
+
+debate_sentences <- setDT(debate_sentences, keep.rownames = TRUE)[]
+names(debate_sentences)[1] <- "element_id"
+
+write_rds(debate_sentences, "debate_sentences.rds")
+
+#debate_afinn <- debate_afinn[,c("id","afinn_vector",)]
+
+system.time(
+  afinn_vector <- sentiment_by(debate_sentences$sentence, by = NULL, group.names, afinn)
+)
+
+system.time(
+  nrc_vector <- sentiment_by(debate_sentences$sentence, by = NULL, group.names, nrc)
+)
+
+#write_rds(debate_sentences, "debate_sentences.rds")
+Sys.setlocale(locale="C")
+system.time(
+  bing_vector <- sentiment_by(debate_sentences$sentence, by = NULL, group.names, bing)
+)
+
+system.time(
+  sentiword_vector <- sentiment_by(debate_sentences$sentence, by = NULL, group.names, lexicon::hash_sentiword)
+)
+
+system.time(
+  hu_vector <- sentiment_by(debate_sentences$sentence, by = NULL, group.names)
+)
+
+names(afinn_vector)[4] <- "afinn_sentiment"
+
+names(nrc_vector)[4] <- "nrc_sentiment"
+
+names(bing_vector)[4] <- "bing_sentiment"
+
+names(sentiword_vector)[4] <- "sentiword_sentiment"
+
+names(hu_vector)[4] <- "hu_sentiment"
+
+hu_vector <- hu_vector[,c("hu_sentiment")]
+
+sentiword_vector <- sentiword_vector[,c("sentiword_sentiment")]
+
+bing_vector <- bing_vector[,c("bing_sentiment")]
+
+nrc_vector <- nrc_vector[,c("nrc_sentiment")]
+
+senti_vectors <- cbind(debate_sentences, afinn_vector, hu_vector, sentiword_vector, nrc_vector, bing_vector)
+
+summary(senti_vectors)
+
+write_rds(senti_vectors, "senti_vectors.rds")
+
+Sys.setlocale(locale="C")
+
+disability_sentences <- disability_sample %>%
+  select(speech, id, speech_date, proper_name, proper_id, party, party_group) %>% 
+  unnest_tokens(sentence, speech, token = "sentences")
+disability_sentences$debate_type <- "Disability"
+
+disability_sentences <- setDT(disability_sentences, keep.rownames = TRUE)[]
+names(disability_sentences)[1] <- "element_id"
+
+write_rds(disability_sentences, "disability_sentences.rds")
+
+system.time(
+  afinn_vector_dis <- sentiment_by(disability_sentences$sentence, by = NULL, group.names, afinn)
+)
+
+system.time(
+  nrc_vector_dis <- sentiment_by(disability_sentences$sentence, by = NULL, group.names, nrc)
+)
+
+### Re-Run
+Sys.setlocale(locale="C")
+system.time(
+  bing_vector_dis <- sentiment_by(disability_sentences$sentence, by = NULL, group.names, bing)
+)
+
+system.time(
+  sentiword_vector_dis <- sentiment_by(disability_sentences$sentence, by = NULL, group.names, lexicon::hash_sentiword)
+)
+
+system.time(
+  hu_vector_dis <- sentiment_by(disability_sentences$sentence, by = NULL, group.names)
+)
+
+names(afinn_vector_dis)[4] <- "afinn_sentiment"
+
+names(nrc_vector_dis)[4] <- "nrc_sentiment"
+
+names(bing_vector_dis)[4] <- "bing_sentiment"###Still needs to run
+
+names(sentiword_vector_dis)[4] <- "sentiword_sentiment"
+
+names(hu_vector_dis)[4] <- "hu_sentiment"
+
+hu_vector_dis <- hu_vector_dis[,c("hu_sentiment")]
+
+sentiword_vector_dis <- sentiword_vector_dis[,c("sentiword_sentiment")]
+
+bing_vector_dis <- bing_vector_dis[,c("bing_sentiment")]
+
+nrc_vector_dis <- nrc_vector_dis[,c("nrc_sentiment")]
+
+senti_vectors_dis <- cbind(disability_sentences, afinn_vector_dis,
+                           hu_vector_dis, sentiword_vector_dis,
+                           nrc_vector_dis, bing_vector_dis)
+
+#summary(senti_vectors_dis)
+#summary(senti_vectors)
+
+#names(senti_vectors)
+#names(senti_vectors_dis)
+
+senti_vectors <- read_rds("senti_vectors.rds")
+
+senti_combined <- rbind(senti_vectors, senti_vectors_dis)
+
+names(senti_combined)[10] <- "element_id2"
+
+summary(senti_combined)
+
+senti_combined$party_group [is.na(senti_combined$party_group)] <- "Other"
+
+write_rds(senti_combined, "senti_combined_full.rds")
+
+write_rds(disability_sample, "disability_sample_full.rds")
+
+
+# Parsing for Shiny Appy ------------------------------------------------------------
+
 library(lubridate)
 library(reshape2)
 library(magrittr)

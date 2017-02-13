@@ -10,16 +10,6 @@ bibliography: references.bib
 runtime: shiny
 ---
 
-
-
-```{js}
-       if(self===top) { /* <- This detects that the page is not displayed in an iframe*/
-          document.getElementById('HideIfIframe').style.display = 'block';
-       }
-```
-
-
-
 #### [Frequency Analysis](#freq)
 ##### [Frequency Chart](#freq_chart)
 #### [Sentiment Analysis](#senti)
