@@ -22,7 +22,7 @@ library(sentimentr)
 #write_rds(debate, "debate.rds")
 
 system.time(
-  debate <- readRDS("debate.rds")
+  debate <- read_rds("debate.rds")
 )
 
 debate$cluster <- paste0(debate$hansard_membership_id,
@@ -379,9 +379,9 @@ library(reshape2)
 library(magrittr)
 library(readr)
 library(data.table)
-#senti_combined <- readRDS("./data/senti_combined.rds")
+#senti_combined <- read_rds("./data/senti_combined.rds")
 
-senti_combined <- readRDS("./data/senti_combined_full.rds")
+senti_combined <- read_rds("./data/senti_combined_full.rds")
 
 senti_combined$party <- as.factor(senti_combined$party)
 
