@@ -89,8 +89,6 @@ rm(match_thing)
 
 # Floor Crossings ---------------------------------------------------------
 
-
-
 switch_mps <- read_csv("~/Documents/hansard1936-2016/Switching MPs.csv", 
                        col_types = cols(crossing_one_date = col_date(format = "%d/%m/%Y"), 
                                         crossing_three_date = col_date(format = "%d/%m/%Y"), 
@@ -136,9 +134,10 @@ debate2$party <- NULL
 
 debate2$party <- debate2$party4
 
-debate2$party_group <- ifelse(debate2$party=="Labour" | debate2$party=="Labour (Co-op)", "Labour",
+debate2$party_group <- ifelse(debate2$proper_id==0, "Speaker",
+                          ifelse(debate2$party=="Labour" | debate2$party=="Labour (Co-op)", "Labour",
                               ifelse(debate2$party=="Conservative", "Conservative", 
-                                     ifelse(debate2$party=="Liberal Democrat", "Liberal Democrat", "Other")))
+                                     ifelse(debate2$party=="Liberal Democrat", "Liberal Democrat", "Other"))))
 
 names(debate2)[names(debate2)=="proper_name.x"] <- "proper_name"
 
