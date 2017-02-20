@@ -420,7 +420,7 @@ options = list(height = 600)
 
 ### Government vs Opposition
 <a name="gov_dis"></a>
-These charts show the scores for all debate and disability debate, seperated between government and opposition, from 1993 <!-- Check date here!-->to the end of 2016.
+These charts show the scores for all debate and disability debate, seperated between government and opposition, from 1992 <!-- Check date here!-->to the end of 2016.
 
 ```{r, echo=FALSE}
 
@@ -482,8 +482,8 @@ ui <- fluidPage(
                 ),
          column(width = 4,
                      
-                      sliderInput("senti_year2", "Year", 1993, 2016,
-                                   value = c(1993, 2016), sep=""),
+                      sliderInput("senti_year2", "Year", 1992, 2016,
+                                   value = c(1992, 2016), sep=""),
                        actionButton("toggle", "Switch Chart Type")
              
                         )
@@ -587,7 +587,7 @@ options = list(height = 650)
 
 ### By Party
 <a name="party_dis"></a>
-These charts show the scores for all debate and disability debate, seperated between different parties, from 1993 <!-- Check date here!-->to the end of 2016. The Conservatives and Liberal Democrats are their own parties, and Labour and Labour Co-op MPs are grouped together as Labour. All other parties are grouped together as Other. <!-- As and when, add SDP to liberal democrats -->
+These charts show the scores for all debate and disability debate, seperated between different parties, from 1992 <!-- Check date here!-->to the end of 2016. The Conservatives and Liberal Democrats are their own parties, and Labour and Labour Co-op MPs are grouped together as Labour. All other parties are grouped together as Other. <!-- As and when, add SDP to liberal democrats -->
 
 ```{r, echo=FALSE}
 
@@ -651,8 +651,8 @@ shinyApp(
                 ),
          column(width = 4,
                      
-                      sliderInput("senti_year2", "Year", 1993, 2016,
-                                   value = c(1993, 2016), sep=""),
+                      sliderInput("senti_year2", "Year", 1992, 2016,
+                                   value = c(1992, 2016), sep=""),
                        actionButton("toggle", "Switch Chart Type")
                         )
             )
